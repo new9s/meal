@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>오늘의 식단</title>
+<style>
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --fg: #0f172a;
+  --sub: #64748b;
+  --line: #e2e8f0;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --accent-fg: #ffffff;
+  --chip: #f1f5f9;
+  --chip-active: #0f172a;
+  --warn: #d97706;
+  --warnbg: #fef3c7;
+  --main-dish: #dc2626;
+  --main-dish-bg: #fef2f2;
+  --shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #090d16;
+    --card: #131b2e;
+    --fg: #f8fafc;
+    --sub: #94a3b8;
+    --line: #1e293b;
+    --accent: #3b82f6;
+    --accent-soft: #1e293b;
+    --accent-fg: #ffffff;
+    --chip: #1e293b;
+    --chip-active: #38bdf8;
+    --warn: #fbbf24;
+    --warnbg: #291e05;
+    --main-dish: #f87171;
+    --main-dish-bg: #2d1519;
+    --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.auto-pill {
+  font-size: 11px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.auto-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+button { font: inherit; cursor: pointer; border: 0; outline: none; }
+
+/* 주간 네비게이션 */
+.nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+}
+.nav button.go {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--fg);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.nav button.go:hover:not(:disabled) { background: var(--accent); color: var(--accent-fg); }
+.nav button.go:disabled { opacity: 0.35; cursor: not-allowed; }
+.navtitle { text-align: center; }
+.navtitle .t-main { font-size: 15px; font-weight: 700; }
+.status { font-size: 12px; color: var(--sub); margin-top: 1px; min-height: 16px; }
+.status.err { color: #ef4444; }
+
+/* 상단 정보행 */
+.nowrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 2px 4px;
+}
+.now { font-size: 13px; color: var(--sub); margin: 0; }
+.now b { color: var(--fg); font-weight: 700; }
+.today-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 식사 탭 */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.tab {
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  color: var(--sub);
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+.tab small {
+  display: block;
+  font-weight: 500;
+  font-size: 10px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+.tab[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* 요일 선택 */
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.day {
+  padding: 8px 2px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.15s;
+}
+.day small {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  margin-top: 2px;
+}
+.day[aria-selected="true"] {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.day.today:not([aria-selected="true"]) {
+  color: var(--accent);
+  font-weight: 800;
+  border: 1.5px solid var(--accent);
+}
+
+/* 식단 메뉴 영역 */
+.menu-box {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+}
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-live {
+  font-size: 10px;
+  color: #fff;
+  background: #ef4444;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 800;
+  animation: pulse 1.5s infinite;
+}
+.badge-live.soon { background: #f59e0b; animation: none; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 0;
+  text-align: center;
+}
+.menu-list .t {
+  color: var(--main-dish);
+  background: var(--main-dish-bg);
+  font-weight: 800;
+  font-size: 19px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.menu-list .l {
+  font-size: 16px;
+  color: var(--fg);
+  font-weight: 500;
+  padding: 3px 0;
+}
+.menu-list .empty {
+  color: var(--sub);
+  font-size: 14px;
+  padding: 40px 0;
+}
+
+.warn {
+  background: var(--warnbg);
+  color: var(--warn);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.ocrnote {
+  font-size: 11px;
+  color: var(--sub);
+  margin-top: 14px;
+  text-align: center;
+}
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 12px;
+  margin-top: 12px;
+}
+.links a, .links button {
+  color: var(--sub);
+  text-decoration: underline;
+  background: none;
+  padding: 0;
+}
+
+canvas { width: 100%; height: auto; display: block; border-radius: 8px; }
+.imgview { display: flex; flex-direction: column; gap: 8px; }
+[hidden] { display: none !important; }
+
+/* 프레시밀에서 착안한 식단 화면 테마 — 기존 동작/마크업 불변 */
+:root {
+  --bg: #f8f8f2;
+  --card: #ffffff;
+  --fg: #263126;
+  --sub: #687469;
+  --line: #e5e9dd;
+  --accent: #426b39;
+  --accent-soft: #edf4e7;
+  --accent-fg: #ffffff;
+  --chip: #eff3e9;
+  --chip-active: #426b39;
+  --warn: #925c16;
+  --warnbg: #fff4df;
+  --main-dish: #365e32;
+  --main-dish-bg: #eef5e9;
+  --shadow: 0 6px 24px rgba(37, 62, 33, .055);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151c17;
+    --card: #202b22;
+    --fg: #f0f4ed;
+    --sub: #abb9a9;
+    --line: #354438;
+    --accent: #9bc984;
+    --accent-soft: #2d402e;
+    --accent-fg: #152416;
+    --chip: #2a392d;
+    --chip-active: #9bc984;
+    --warn: #f2ca86;
+    --warnbg: #41331e;
+    --main-dish: #cae5af;
+    --main-dish-bg: #2d402e;
+    --shadow: 0 8px 24px rgba(0, 0, 0, .2);
+  }
+}
+body {
+  padding: max(24px, env(safe-area-inset-top)) 18px max(36px, env(safe-area-inset-bottom));
+  line-height: 1.55;
+}
+header { margin: 2px 0 22px; gap: 8px; }
+h1 { font-size: 24px; letter-spacing: -.045em; line-height: 1.3; }
+.auto-pill {
+  flex: none;
+  color: #426b39;
+  background: #eaf2e3;
+  padding: 6px 10px;
+  font-size: 10px;
+}
+.auto-pill::before { background: #67a252; box-shadow: none; }
+@media (prefers-color-scheme: dark) {
+  .auto-pill { color: #c6e5b7; background: #2c422f; }
+  .auto-pill::before { background: #9bc984; }
+}
+.card {
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.nav { padding: 14px 16px; gap: 10px; }
+.nav button.go {
+  width: 44px;
+  height: 44px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 23px;
+}
+.navtitle .t-main { font-size: 16px; letter-spacing: -.035em; }
+.status { font-size: 12px; margin-top: 3px; }
+.status.err { color: #b64232; }
+.nowrow { padding: 2px 2px; margin: 3px 0 16px; }
+.now { font-size: 12px; }
+.today-btn {
+  min-height: 44px;
+  padding: 8px 16px;
+  border-color: var(--accent);
+  border-radius: 99px;
+  color: var(--accent);
+  box-shadow: none;
+}
+.tabs { gap: 7px; margin-bottom: 16px; }
+.tab {
+  min-height: 64px;
+  padding: 10px 2px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  font-size: 14px;
+  color: var(--fg);
+}
+.tab small { color: var(--sub); opacity: 1; font-size: 10px; }
+.tab[aria-selected="true"] {
+  box-shadow: 0 4px 10px rgba(45, 90, 41, .14);
+}
+.tab[aria-selected="true"] small { color: inherit; opacity: .9; }
+.days {
+  gap: 3px;
+  padding: 5px 2px;
+  margin-bottom: 16px;
+  border-radius: 17px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.day { min-height: 50px; padding: 7px 1px; border-radius: 13px; }
+.day small { font-size: 10px; }
+.day[aria-selected="true"] {
+  color: var(--accent-fg);
+  background: var(--accent);
+  box-shadow: none;
+}
+.day.today:not([aria-selected="true"]) {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+.menu-box { padding: 20px 18px 22px; }
+.menu-header { margin-bottom: 14px; padding-bottom: 14px; }
+.badge { font-size: 16px; letter-spacing: -.035em; }
+.badge-live { border-radius: 99px; padding: 4px 8px; }
+.menu-list { gap: 10px; padding: 7px 0 12px; }
+.menu-list .t {
+  font-size: 19px;
+  border-radius: 14px;
+  padding: 13px 10px;
+  margin-bottom: 6px;
+}
+.menu-list .l { font-size: 16px; padding: 4px 0; }
+.warn { border-radius: 12px; padding: 11px 13px; }
+.ocrnote { margin-top: 18px; }
+.links { gap: 8px 16px; flex-wrap: wrap; margin-top: 16px; }
+.links a, .links button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 360px) {
+  body { padding-left: 12px; padding-right: 12px; }
+  h1 { font-size: 21px; }
+  .auto-pill { padding: 5px 7px; }
+  .tab small { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab, .day, .nav button.go { transition: none; }
+  .badge-live { animation: none; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍚 오늘의 식단</h1>
+  <div class="auto-pill">자동 갱신 중</div>
+</header>
+
+<div class="card nav">
+  <button class="go" id="prev" disabled aria-label="이전 주">‹</button>
+  <div class="navtitle">
+    <div class="t-main" id="ntitle">식단표 확인 중…</div>
+    <div class="status" id="status"></div>
+  </div>
+  <button class="go" id="next" disabled aria-label="다음 주">›</button>
+</div>
+
+<div id="view" hidden>
+  <div class="nowrow">
+    <p class="now" id="now"></p>
+    <button class="today-btn" id="today">오늘</button>
+  </div>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="days" id="days"></div>
+
+  <div class="card menu-box">
+    <div class="menu-header">
+      <div class="badge" id="badge"></div>
+      <div id="liveBadge" class="badge-live" hidden>LIVE</div>
+    </div>
+    
+    <div class="warn" id="warn" hidden></div>
+    <div class="menu-list" id="menu" aria-live="polite"></div>
+
+    <div class="imgview" id="imgview" hidden>
+      <canvas id="dateStrip"></canvas>
+      <canvas id="cell"></canvas>
+    </div>
+
+    <div class="ocrnote">텍스트 인식 결과로 일부 오차가 있을 수 있습니다.</div>
+    <div class="links">
+      <button id="toggleImg">이미지로 원본 대조</button>
+      <a id="full" target="_blank" rel="noopener">전체 원본 보기</a>
+      <button id="toggleAll">주간표 전체</button>
+    </div>
+    <canvas id="all" hidden style="margin-top:12px;"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script>
+const API = 'https://front.cjfreshmeal.co.kr/notice/v1/notice-detail';
+const COL_W = (1114 - 40) / 7;
+const BASE_H = 708;
+const GRID = {
+  header: [90, 119],
+  meals: { breakfast:[119,238], lunch:[238,424], dinner:[424,531], night:[531,640] },
+};
+const MEALS = [
+  { key:'breakfast', label:'아침', time:'06:10~07:00', start: 6*60+10 },
+  { key:'lunch',     label:'점심', time:'12:00~13:00', start: 12*60 },
+  { key:'dinner',    label:'저녁', time:'17:30~18:00', start: 17*60+30 },
+  { key:'night',     label:'야식', time:'00:00~00:30', start: 24*60 },
+];
+
+/* 격자선 자동 검출: 주마다 이미지 크기와 칸 높이가 달라 고정 좌표로 자르면 글자가 잘린다 */
+let grid = null;
+function fixedGrid(im){
+  const W = im.naturalWidth, H = im.naturalHeight, ky = H / BASE_H, x0 = W - 7*COL_W;
+  const cols = Array.from({length:8}, (_,i) => { const v = x0 + i*COL_W; return [v, v]; });
+  const sc = ([a,b]) => [a*ky, b*ky];
+  return { detected:false, cols, header: sc(GRID.header), strip: sc(GRID.header),
+    meals: { breakfast: sc(GRID.meals.breakfast), lunch: sc(GRID.meals.lunch), dinner: sc(GRID.meals.dinner), night: sc(GRID.meals.night) } };
+}
+function detectGrid(im){
+  try{
+    const W = im.naturalWidth, H = im.naturalHeight;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const cx = c.getContext('2d', { willReadFrequently:true }); cx.drawImage(im, 0, 0);
+    const d = cx.getImageData(0, 0, W, H).data;
+    const L = new Float32Array(W*H);
+    for (let i = 0, p = 0; p < L.length; i += 4, p++) L[p] = 0.3*d[i] + 0.59*d[i+1] + 0.11*d[i+2];
+    const O = 4, TH = 20;
+    const runs = (arr, min) => { const out = []; let s = -1;
+      for (let i = 0; i <= arr.length; i++){ const on = i < arr.length && arr[i] > min;
+        if (on && s < 0) s = i; if (!on && s >= 0){ out.push([s, i-1]); s = -1; } }
+      return out; };
+    // 가로선
+    const rc = new Array(H).fill(0);
+    for (let y = O; y < H-O; y++){ let n = 0;
+      for (let x = 0; x < W; x++){ const p = y*W + x, l = L[p]; if (l < 215 && l < L[p-O*W]-TH && l < L[p+O*W]-TH) n++; }
+      rc[y] = n; }
+    const rows = runs(rc, W*0.6);
+    if (rows.length < 6) return null;
+    const segs = [];
+    for (let i = 0; i+1 < rows.length; i++) segs.push({ top: rows[i][1]+1, bot: rows[i+1][0]-1 });
+    const tall = s => s.bot - s.top > 40;
+    const ft = segs.findIndex(tall);
+    if (ft < 1) return null;
+    const groups = [];
+    for (let i = ft; i < segs.length; i++){
+      if (tall(segs[i])) groups.push([segs[i].top, segs[i].bot]);
+      else if (groups.length) groups[groups.length-1][1] = segs[i].bot;
+    }
+    if (groups.length < 4) return null;
+    const hd = segs[ft-1];
+    const stripTop = ft >= 2 ? segs[ft-2].top : Math.max(0, hd.top - (hd.bot - hd.top) - 2);
+    // 세로선
+    const y0 = rows[0][0], y1 = rows[rows.length-1][1], hh = y1 - y0;
+    const cc = new Array(W).fill(0);
+    for (let x = O; x < W-O; x++){ let n = 0;
+      for (let y = y0; y <= y1; y++){ const p = y*W + x, l = L[p]; if (l < 215 && l < L[p-O]-TH && l < L[p+O]-TH) n++; }
+      cc[x] = n; }
+    const vl = runs(cc, hh*0.6);
+    if (vl.length < 7) return null;
+    const gaps = []; for (let i = 0; i+1 < vl.length; i++) gaps.push(vl[i+1][0] - vl[i][0]);
+    let cw = 0, best = 0;
+    for (const g of gaps){ const k = gaps.filter(h => Math.abs(h-g) <= 4).length; if (k > best || (k === best && g > cw)){ best = k; cw = g; } }
+    if (best < 5) return null;
+    let chain = [], cur = [vl[0]];
+    for (let i = 1; i < vl.length; i++){
+      if (Math.abs(vl[i][0] - vl[i-1][0] - cw) <= 4) cur.push(vl[i]);
+      else { if (cur.length > chain.length) chain = cur; cur = [vl[i]]; }
+    }
+    if (cur.length > chain.length) chain = cur;
+    if (chain.length < 7) return null;
+    const cols = chain.slice(-8).map(v => [v[0], v[1]]);
+    if (cols.length === 7){ const e = Math.min(W, cols[6][0] + cw); cols.push([e, e]); }
+    return { detected:true, cols, header:[hd.top, hd.bot], strip:[stripTop, hd.bot],
+      meals: { breakfast: groups[0], lunch: groups[1], dinner: groups[2], night: groups[3] } };
+  }catch(e){ return null; }
+}
+
+function mealAt(d){
+  const m = d.getHours() * 60 + d.getMinutes();
+  if (m < 30)         return { key:'night', dayShift:-1, isLive: true };
+  if (m < 7*60)       return { key:'breakfast', dayShift:0, isLive: m >= 6*60 + 10 };
+  if (m < 13*60)      return { key:'lunch', dayShift:0, isLive: m >= 12*60 };
+  if (m < 18*60)      return { key:'dinner', dayShift:0, isLive: m >= 17*60 + 30 };
+  return { key:'night', dayShift:0, isLive: false };
+}
+
+const $ = id => document.getElementById(id);
+const DOW = ['월','화','수','목','금','토','일'];
+let img = null, state = { meal:'lunch', day:0 }, todayCol = 0, notice = null, showImg = false;
+let userManuallyInteracted = false;
+const dowCol = d => (d.getDay() + 6) % 7;
+
+const SEED_IDX = 2121;
+const BATCH = 6, MAX_MISS = 10, MAX_STEPS = 25;
+
+async function fetchNotice(i){
+  try{
+    const r = await fetch(`${API}?boardIdx=${i}`);
+    const j = await r.json();
+    return (j.retCode === '00' && j.data) ? j.data : null;
+  }catch(e){ return null; }
+}
+const sigOf = t => (t||'').replace(/\d+/g,'#').replace(/\s+/g,' ').trim();
+const sameForm = (n, sig) => n && n.fileNm && sigOf(n.title) === sig;
+
+async function findSame(from, dir, sig){
+  let miss = 0, i = from + dir;
+  for (let step = 0; step < MAX_STEPS && i > 0; step++){
+    const ids = Array.from({length:BATCH}, (_,k) => i + k*dir).filter(x => x > 0);
+    const res = await Promise.all(ids.map(fetchNotice));
+    for (let k = 0; k < ids.length; k++){
+      if (!res[k]){ if (++miss >= MAX_MISS && dir > 0) return null; continue; }
+      miss = 0;
+      if (sameForm(res[k], sig)) return res[k];
+    }
+    i += BATCH*dir;
+  }
+  return null;
+}
+
+function weekStartOf(n){
+  const m = /^(\d{1,2})\.(\d{1,2})\./.exec(n.orgFileNm || '');
+  if (!m) return null;
+  const reg = new Date(n.regDt);
+  let y = reg.getFullYear();
+  if (+m[1] < reg.getMonth()+1 - 6) y++;
+  return new Date(y, +m[1]-1, +m[2]);
+}
+
+function loadImage(src){
+  const tryLoad = cors => new Promise((res, rej) => {
+    const im = new Image();
+    if (cors) im.crossOrigin = 'anonymous';
+    im.onload = () => res(im);
+    im.onerror = () => rej(new Error('이미지를 불러오지 못했습니다.'));
+    im.src = src;
+  });
+  return tryLoad(true).catch(() => tryLoad(false));
+}
+function setStatus(t, err){ const s=$('status'); s.textContent=t; s.className='status'+(err?' err':''); }
+function setBusy(b){ $('prev').disabled = b; $('next').disabled = b; }
+
+async function show(n){
+  img = await loadImage(n.fileNm);
+  grid = detectGrid(img) || fixedGrid(img);
+  notice = n;
+  notice.weekStart = weekStartOf(n);
+  try{ localStorage.setItem('mealIdx', n.boardIdx); }catch(e){}
+  $('ntitle').textContent = n.title;
+  const ws = notice.weekStart, we = ws && new Date(ws.getTime() + 6*864e5);
+  setStatus(ws ? `${ws.getMonth()+1}월 ${ws.getDate()}일 ~ ${we.getMonth()+1}월 ${we.getDate()}일` : '');
+  init();
+}
+
+async function go(dir){
+  userManuallyInteracted = true;
+  setBusy(true); setStatus(dir < 0 ? '이전 식단 확인 중…' : '다음 식단 확인 중…');
+  try{
+    const n = await findSame(notice.boardIdx, dir, sigOf(notice.title));
+    if (!n){ setStatus(dir < 0 ? '더 이전 식단이 없습니다.' : '더 최신 식단이 없습니다.', true); return; }
+    await show(n);
+  }catch(e){ setStatus(e.message || '불러오기에 실패했습니다.', true); }
+  finally{ setBusy(false); }
+}
+
+async function start(isSilent = false){
+  if (!isSilent) { setBusy(true); setStatus('최신 식단 확인 중…'); }
+  try{
+    let seedIdx = SEED_IDX;
+    try{ seedIdx = +localStorage.getItem('mealIdx') || SEED_IDX; }catch(e){}
+    const seed = await fetchNotice(seedIdx) || await fetchNotice(SEED_IDX);
+    if (!seed) throw new Error('식단 공지를 불러오지 못했습니다.');
+    const sig = sigOf(seed.title);
+    const chain = [seed];
+    for (let n = seed; (n = await findSame(n.boardIdx, 1, sig)); ) chain.push(n);
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let n = seed, k = 0; k < 6 && (weekStartOf(n) || 0) > today; k++){
+      n = await findSame(n.boardIdx, -1, sig); if (!n) break;
+      chain.unshift(n);
+    }
+    const inWeek = n => { const s = weekStartOf(n); return s && today >= s && today < new Date(s.getTime() + 7*864e5); };
+    const started = chain.filter(n => { const s = weekStartOf(n); return s && s <= today; });
+    const pick = chain.find(inWeek) || started[started.length-1] || chain[chain.length-1];
+    
+    if (!notice || notice.boardIdx !== pick.boardIdx) {
+      await show(pick);
+    } else {
+      syncCurrentTimeState();
+    }
+  }catch(e){ 
+    if (!isSilent) {
+      setStatus(e.message || '불러오기에 실패했습니다.', true); 
+      $('ntitle').textContent = '식단을 불러오지 못했습니다';
+    }
+  }finally{ 
+    if (!isSilent) setBusy(false); 
+  }
+}
+
+function syncCurrentTimeState(){
+  if (!notice) return;
+  const now = new Date();
+  const mt = mealAt(now);
+  const base = new Date(now); base.setDate(base.getDate() + mt.dayShift);
+  const ws = notice.weekStart;
+  const sameWeek = d => { const x = new Date(d); x.setHours(0,0,0,0); return ws ? (x >= ws && x < new Date(ws.getTime()+7*864e5)) : true; };
+  todayCol = sameWeek(now) ? dowCol(now) : -1;
+
+  if (!userManuallyInteracted) {
+    state.meal = mt.key;
+    state.day = sameWeek(base) ? dowCol(base) : 0;
+  }
+  buildTabs(); buildDays(); render();
+}
+
+function init(){
+  userManuallyInteracted = false;
+  $('view').hidden = false;
+  $('full').href = notice.fileNm;
+  syncCurrentTimeState();
+}
+
+function buildTabs(){
+  $('tabs').innerHTML = '';
+  MEALS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'tab'; b.setAttribute('role','tab');
+    b.innerHTML = `${m.label}<small>${m.time}</small>`;
+    b.onclick = () => { userManuallyInteracted = true; state.meal = m.key; render(); };
+    b.dataset.key = m.key;
+    $('tabs').appendChild(b);
+  });
+}
+
+function buildDays(){
+  $('days').innerHTML = '';
+  DOW.forEach((n,i) => {
+    const b = document.createElement('button');
+    b.className = 'day' + (i === todayCol ? ' today' : '');
+    const ws = notice.weekStart;
+    if (ws){ const t = new Date(ws); t.setDate(t.getDate()+i); b.innerHTML = `${n}<small>${t.getMonth()+1}/${t.getDate()}</small>`; }
+    else b.textContent = n;
+    b.onclick = () => { userManuallyInteracted = true; state.day = i; render(); };
+    b.dataset.i = i;
+    $('days').appendChild(b);
+  });
+}
+
+function cellRect(day, meal){
+  const g = grid || fixedGrid(img);
+  const [a,b] = meal === 'header' ? g.strip : g.meals[meal];
+  const x = g.cols[day][1] + 1, xe = g.cols[day+1][0] - 1;
+  return { x, y: a, w: Math.max(1, xe - x), h: Math.max(1, b - a + 1) };
+}
+function crop(canvas, r, scale){
+  canvas.width = Math.round(r.w*scale); canvas.height = Math.round(r.h*scale);
+  const c = canvas.getContext('2d', { willReadFrequently:true });
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  c.drawImage(img, r.x, r.y, r.w, r.h, 0, 0, canvas.width, canvas.height);
+}
+
+function render(){
+  const now = new Date();
+  const mi = MEALS.find(m => m.key === state.meal);
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.key === state.meal));
+  document.querySelectorAll('.day').forEach(b => b.setAttribute('aria-selected', +b.dataset.i === state.day));
+
+  const mt = mealAt(now);
+  const isTargetDay = todayCol >= 0 && state.day === dowCol(new Date(now.getTime() + mt.dayShift*864e5));
+  const isNowMeal = isTargetDay && state.meal === mt.key;
+
+  $('now').innerHTML = `현재 <b>${now.getMonth()+1}월 ${now.getDate()}일(${DOW[dowCol(now)]}) ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}</b>`;
+
+  let dateTxt = '';
+  if (notice.weekStart){ const t = new Date(notice.weekStart); t.setDate(t.getDate()+state.day); dateTxt = `${t.getMonth()+1}월 ${t.getDate()}일 `; }
+  $('badge').textContent = `${dateTxt}${DOW[state.day]}요일 ${mi.label}`;
+  
+  const lb = $('liveBadge');
+  if (isNowMeal && mt.isLive){ lb.hidden = false; lb.className = 'badge-live'; lb.textContent = 'LIVE'; }
+  else if (isNowMeal){
+    const left = mi.start - (now.getHours()*60 + now.getMinutes());
+    const h = Math.floor(left/60), mm = left % 60;
+    lb.hidden = false; lb.className = 'badge-live soon';
+    lb.textContent = '곧 식사 · ' + (h ? h + '시간 ' : '') + mm + '분 후';
+  } else lb.hidden = true;
+
+  const w2 = $('warn');
+  if (notice.weekStart){
+    w2.hidden = todayCol >= 0;
+    w2.textContent = '이번 주 식단이 아닙니다.';
+  } else {
+    const target = new Date(now); target.setDate(now.getDate() - dowCol(now) + state.day);
+    w2.hidden = false;
+    w2.textContent = `오늘 기준 ${target.getMonth()+1}월 ${target.getDate()}일 식단입니다.`;
+  }
+
+  crop($('dateStrip'), cellRect(state.day, 'header'), 2.5);
+  crop($('cell'), cellRect(state.day, state.meal), 2.5);$('imgview').hidden = !showImg;
+  $('menu').hidden = showImg;
+  $('toggleImg').textContent = showImg ? '텍스트로 보기' : '이미지로 원본 대조';
+
+  if (!$('all').hidden){ const g = grid || fixedGrid(img); crop($('all'), { x: 0, y: g.strip[0], w: img.naturalWidth, h: g.meals.night[1] - g.strip[0] + 1 }, 1.5); }
+
+  if (!showImg) showText();
+}
+
+/* OCR */
+const ocrCache = new Map();
+let workerP = null, runId = 0, ocrChain = Promise.resolve();
+
+function getWorker(){
+  if (!workerP){
+    workerP = Tesseract.createWorker('kor', 1, {
+      logger: m => {
+        if (m.status && m.status.includes('loading')) $('menu').dataset.msg = `엔진 준비 중… ${Math.round((m.progress||0)*100)}%`;
+        else if (m.status === 'recognizing text') $('menu').dataset.msg = `메뉴 판독 중… ${Math.round((m.progress||0)*100)}%`;
+        const el = document.querySelector('#menu .empty'); if (el && $('menu').dataset.msg) el.textContent =$('menu').dataset.msg;
+      }
+    }).then(async w => { await w.setParameters({ tessedit_pageseg_mode:'6', preserve_interword_spaces:'0' }); return w; });
+    workerP.catch(() => { workerP = null; });
+  }
+  return workerP;
+}
+
+function isRedLine(colorCanvas, b){
+  const c = colorCanvas.getContext('2d');
+  const x=Math.max(0,b.x0), y=Math.max(0,b.y0), w=Math.max(1,Math.min(colorCanvas.width,b.x1)-x), h=Math.max(1,Math.min(colorCanvas.height,b.y1)-y);
+  const d = c.getImageData(x,y,w,h).data; let dark=0, red=0;
+  for (let i=0;i<d.length;i+=4){ if (Math.min(d[i],d[i+1],d[i+2]) < 110){ dark++; if (d[i]-d[i+1] > 70 && d[i]-d[i+2] > 70) red++; } }
+  return dark > 8 && red/dark > 0.5;
+}
+
+const DICT_RAW = ['쌀밥','현미밥','흑미밥','잡곡밥','추가밥','미역국','소고기미역국','배추김치','깍두기','총각김치','배추겉절이','부추겉절이',
+  '셀프라면9종','셀프계란F','시리얼&빵&잼','그린샐러드','우유','초코우유','요구르트','사과주스','야채계란찜','열무고추장무침',
+  '미역고추장무침','땡초콩나물국','군만두','궁중떡볶음','홍합탕','두부조림','핑크쌈무','양념장','꽈리고추제육볶음','단호박튀김&양념장',
+  '오징어볶음&소면사리','시래기콩나물밥&양념장','김치국','깻잎지무침','콩나물국','계란F','계란','김',
+  '셌프계란F','시리얼&빵&잼','그린샐러드','셌프라면9종','동태전&양념장','얼큰수제비국','고들빼기무침','짬뽕국','꿔바로우',
+  '연두부찜&양념장','부대찌개','감자전&양념장','새송이볶음','부추와사비무침','닭살콩나물찜','호박된장국','미역초무침',
+  '소고기해장국','고기산적구이&케찹','메추리알장조림','시금치나물','제육두반장볶음','호박새우젓국','미트볼조림',
+  '멸치콩자반','바베큐폭찹','건새우무국','잡채','건파래','비엔나김치볶음','흑미밥','당면소고기무국','스크램블에그',
+  '상추겉절이','파채닭보쌈','배추된장국','쫑면무침','청경채겉절이','김치볶음밥&김가루','사골파국','생선커틀릿&타르S',
+  '떡갈비구이&케찹','감자채볶음','상추오리엔탈무침','콩불고기','들깨감자옹심이국','계란두부전&양념장','고사리볶음',
+  '치킨가라아게&갈릭디핑S','오이피클','당면버섯소불고기','비엔나피망볶음','숙주나물','꽈리고추닭갈비','열무된장국',
+  '어묵볶음','고췹잎무침','설렁탕&소면사리','해물파전&양념장','가지나물','포도주스','숙닉','마카로니샐러드','설탕꽈배기',
+  '식혜','쥬시쿨','청귤주스','매콤돼지갈비찜','물만두찜&양념장','오이생채','철판불짜장','계란국','탕수육','삼색냉채',
+  '대파육개장','깐쇼새우','땅콩조림','오렌지주스','재스민차','밤식혜','검은콩두유','배주스','딸기우유','꽃빵튀김',
+  '해물순두부찌개','매콤두부조림','깻잎무쌈','총각김치','비타민두유','흰우유','호두아몬드두유','잡곡밥'];
+// v1.4: 사전 오타 정리(셌프→셀프, 쫑면→쫄면, 고췹잎→고춧잎, 숙닉 삭제)와 메뉴 추가
+const DICT = [...new Set(DICT_RAW.filter(w => !['셌프계란F','셌프라면9종','숙닉','고췹잎무침','쫑면무침'].includes(w)).concat([
+  '쫄면무침','고춧잎무침','현미밥','추가밥','계란국','숭늉','석류에이드','쌀음료','ABC주스','녹차','깐마늘장아찌무침',
+  '청양후랑크볶음','팽이호박나물','땡초투움바스파게티','브로컬리그린빈볶음','시래기된장지짐','철판불맛오돈불고기','계란F',
+  '배추겉절이','해물순두부찌개','쥬시쿨','배주스','밤식혜','재스민차','꽃빵튀김','검은콩두유','흰우유','초코우유',
+  // '/'로 묶여 한 줄에 나오는 조합은 줄 전체로 맞춘다
+  '쌀밥/현미밥','추가밥/계란국','그린샐러드/우유/김/계란F','석류에이드/숭늉','쌀음료/숭늉','ABC주스/숭늉']))];
+
+const jamo = s => [...s].map(ch => { const c = ch.charCodeAt(0) - 0xAC00; if (c < 0 || c > 11171) return ch;
+  return String.fromCharCode(0x1100 + Math.floor(c/588)) + String.fromCharCode(0x1161 + Math.floor(c%588/28)) + (c%28 ? String.fromCharCode(0x11A7 + c%28) : ''); }).join('');
+
+/* 비슷하게 생겨 OCR이 자주 헷갈리는 자모 쌍 (거리 0.5로 계산) */
+const CONF = (() => {
+  const L = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', V = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ', T = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
+  const pairs = ['ㅐㅔ','ㅔㅖ','ㅐㅖ','ㅐㅒ','ㅗㅜ','ㅜㅡ','ㅗㅡ','ㅜㅠ','ㅓㅕ','ㅏㅑ','ㅇㅎ','ㄹㅌ','ㅁㅂ','ㅈㅊ','ㄱㄲ','ㄷㄸ','ㅂㅃ','ㅅㅆ','ㅈㅉ','ㄴㄹ','ㄹㅁ','ㄷㅌ','ㄱㅋ','ㅍㅌ'];
+  const s = new Set(), add = (x, y) => { s.add(x+y); s.add(y+x); };
+  for (const [a, b] of pairs){
+    if (V.includes(a)){ add(String.fromCharCode(0x1161 + V.indexOf(a)), String.fromCharCode(0x1161 + V.indexOf(b))); continue; }
+    add(String.fromCharCode(0x1100 + L.indexOf(a)), String.fromCharCode(0x1100 + L.indexOf(b)));
+    if (T.indexOf(a) > 0 && T.indexOf(b) > 0) add(String.fromCharCode(0x11A7 + T.indexOf(a)), String.fromCharCode(0x11A7 + T.indexOf(b)));
+  }
+  return s;
+})();
+function wlev(a, b){
+  const m = a.length, n = b.length; let prev = Array.from({length:n+1}, (_, j) => j), cur = new Array(n+1);
+  for (let i = 1; i <= m; i++){ cur[0] = i;
+    for (let j = 1; j <= n; j++){ const s = a[i-1] === b[j-1] ? 0 : CONF.has(a[i-1] + b[j-1]) ? 0.5 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + s); }
+    [prev, cur] = [cur, prev]; }
+  return prev[n];
+}
+
+/* n-gram: 자모를 3개씩 묶은 조각이 얼마나 겹치는지 본다. 앞뒤 잡문자나 일부 뭉개진 글자에 강하다 */
+const grams = (s, n) => { const p = '^'.repeat(n-1) + s + '$'.repeat(n-1), g = new Map();
+  for (let i = 0; i + n <= p.length; i++){ const k = p.slice(i, i+n); g.set(k, (g.get(k)||0) + 1); } return g; };
+const dice = (A, B) => { let c = 0, a = 0, b = 0; for (const v of A.values()) a += v; for (const v of B.values()) b += v;
+  for (const [k, v] of A) if (B.has(k)) c += Math.min(v, B.get(k)); return a + b ? 2*c/(a+b) : 0; };
+const cover = (P, W) => { let c = 0, b = 0; for (const [k, v] of W){ b += v; if (P.has(k)) c += Math.min(v, P.get(k)); } return b ? c/b : 0; };
+const DJ = new Map(DICT.map(w => [w, jamo(w)])), DG = new Map(DICT.map(w => [w, grams(jamo(w), 3)]));
+// 앞뒤에 붙은 잡글자 한 글자까지 떼어 보고 비교 (예: 뿌셀프라면9층 → 셀프라면9층)
+const trims = part => { const L = part.length, r = [[part, 0]];
+  if (L >= 4) r.push([part.slice(1), 1], [part.slice(0, -1), 1]);
+  if (L >= 6) r.push([part.slice(1, -1), 2]);
+  return r; };
+function fix(part){
+  if (!part || DICT.includes(part)) return part;
+  const pj = jamo(part);
+  if (pj.length < 4) return part;
+  // 1단계 n-gram: 조각이 많이 겹치는 사전 메뉴 8개를 후보로 뽑는다
+  const P3 = grams(pj, 3);
+  const cand = DICT.filter(w => Math.abs(w.length - part.length) <= 3)
+    .map(w => ({ w, ng: cover(DG.get(w), P3) * 0.5 + dice(P3, DG.get(w)) * 0.5 }))
+    .sort((a, b) => b.ng - a.ng).slice(0, 8);
+  // 2단계 검증: 헷갈리는 자모는 반값으로 친 자모 거리 비율
+  const sc = cand.map(c => { const wj = DJ.get(c.w); let r = 9;
+    for (const [t, cut] of trims(part)){ if (cut && c.w.length < 3) continue; const tj = jamo(t);
+      r = Math.min(r, (wlev(tj, wj) + cut*0.5) / Math.max(tj.length, wj.length)); }
+    return { w: c.w, r, ng: c.ng }; }).sort((a, b) => a.r - b.r || b.ng - a.ng);
+  const [a, b] = sc; if (!a) return part;
+  const gap = b ? b.r - a.r : 1;
+  // 기본: 거리 22% 이하 + 2등과 차이. 짧은 메뉴(4~5글자)는 한 글자 차이가 커서 2등과 차이가 클 때만 30%까지
+  if (a.r <= 0.22 && (gap >= 0.05 || a.ng - b.ng >= 0.15)) return a.w;
+  if (part.length >= 4 && part.length <= 5 && a.r <= 0.3 && gap >= 0.2) return a.w;
+  return part;
+}
+const cleanLine = s => {
+  const c = s.replace(/([가-힣])\s*8\.?\s+(?=[가-힣])/g, '$1&')   // '&'가 '8.'로 읽힌 경우
+    .replace(/[|_~=?\[\]{}\\]/g,'')
+    .split(/\s+/).filter(t => !/^[^\s가-힣A-Za-z0-9&/]+$/.test(t)).join(' ').trim()
+    .replace(/^\d\s+(?=[가-힣])/, '')
+    .replace(/([가-힣])\s+(?=\d)/g,'$1').replace(/(\d)\s+(?=[가-힣])/g,'$1')
+    .split(/\s+/).filter(t => !/^[ㄱ-ㅣ]+$/.test(t)).join(' ')
+    .replace(/\s*&\s*/g,'&').replace(/([가-힣])\s+(?=[가-힣])/g,'$1').replace(/\s+/g,' ').trim()
+    .split('/').map(p => p.trim()).filter(Boolean).join('/');
+  if (c.includes('/')){ const whole = fix(c); if (whole !== c) return whole; }
+  return c.split('/').map(fix).join('/');
+};
+
+/* 셀을 2.5배 확대 + 흰 여백 → 칸 안의 구분선(PLUS줄 등) 제거 */
+function prepCell(r){
+  const S = 2.5, P = 16;
+  const w = Math.round(r.w*S) + 2*P, h = Math.round(r.h*S) + 2*P;
+  const color = document.createElement('canvas'); color.width = w; color.height = h;
+  const cx = color.getContext('2d', { willReadFrequently:true });
+  cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
+  cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+  cx.drawImage(img, r.x, r.y, r.w, r.h, P, P, w - 2*P, h - 2*P);
+  const id = cx.getImageData(0, 0, w, h), d = id.data;
+  // 선 = 양쪽(위아래 또는 좌우) 배경보다 뚜렷하게 어두운 픽셀이 길게 이어진 것 (색 배경 줄은 선으로 보지 않음)
+  const lum = p => (p < 0 || p >= w*h) ? 255 : 0.3*d[p*4] + 0.59*d[p*4+1] + 0.11*d[p*4+2];
+  const O = 5;
+  const lineH = p => { const l = lum(p); return l < 215 && l < lum(p - O*w) - 20 && l < lum(p + O*w) - 20; };
+  const lineV = p => { const l = lum(p); return l < 215 && l < lum(p - O) - 20 && l < lum(p + O) - 20; };
+  const longRun = (n, at, f) => { let best = 0, cur = 0; for (let k = 0; k < n; k++){ if (f(at(k))){ if (++cur > best) best = cur; } else cur = 0; } return best; };
+  const wipe = p => { d[p*4] = d[p*4+1] = d[p*4+2] = 255; };
+  const rowsW = [], colsW = [];
+  for (let y = 0; y < h; y++) if (longRun(w, x => y*w + x, lineH) > (w - 2*P) * 0.5) rowsW.push(y);
+  for (let x = 0; x < w; x++) if (longRun(h, y => y*w + x, lineV) > (h - 2*P) * 0.5) colsW.push(x);
+  rowsW.forEach(y => { for (let x = 0; x < w; x++) wipe(y*w + x); });
+  colsW.forEach(x => { for (let y = 0; y < h; y++) wipe(y*w + x); });
+  cx.putImageData(id, 0, 0);
+  // v1.4: 색 배경 줄(PLUS·셀프라면)만 찾아 배경을 흰색으로 맞추고 글자 대비를 높인다. 흰 바탕 줄과 빨간 제목은 그대로 둔다
+  const ink = document.createElement('canvas'); ink.width = w; ink.height = h;
+  const ix = ink.getContext('2d', { willReadFrequently:true }); ix.drawImage(color, 0, 0);
+  const kd = ix.getImageData(0, 0, w, h), k = kd.data;
+  for (let y = 0; y < h; y++){
+    const mins = []; let sat = 0, n = 0;
+    for (let x = 0; x < w; x += 3, n++){ const i = (y*w + x)*4, mx = Math.max(k[i], k[i+1], k[i+2]), mn = Math.min(k[i], k[i+1], k[i+2]);
+      if (mx > 200 && mx - mn > 18) sat++; mins.push(mn); }
+    if (sat < n * 0.5) continue;
+    const bg = mins.sort((a, b) => a - b)[Math.floor(n * 0.7)];
+    for (let x = 0; x < w; x++){ const i = (y*w + x)*4;
+      const v = Math.max(0, Math.min(255, Math.min(k[i], k[i+1], k[i+2]) * 255 / Math.max(1, bg - 15))); k[i] = k[i+1] = k[i+2] = v; }
+  }
+  ix.putImageData(kd, 0, 0);
+  return { color, ink };
+}
+
+async function ocrCell(day, meal){
+  const { color, ink } = prepCell(cellRect(day, meal));
+  const w = await getWorker();
+  const res = await w.recognize(ink, {}, { blocks:true });
+  const out = [];
+  const lines = [];
+  (res.data.blocks || []).forEach(bl => (bl.paragraphs||[]).forEach(p => (p.lines||[]).forEach(l => lines.push(l))));
+  if (!lines.length && res.data.text) res.data.text.split('\n').forEach(t => lines.push({ text:t, bbox:null }));
+  for (const l of lines){
+    const text = cleanLine(l.text || '');
+    if (!/[가-힣]{2,}/.test(text)) continue;
+    out.push({ text, title: l.bbox ? isRedLine(color, l.bbox) : false });
+  }
+  return out;
+}
+
+function showText(){
+  const box = $('menu');
+  const my = ++runId;
+  const key = `${notice.boardIdx}|${state.day}|${state.meal}`;
+  const paint = lines => {
+    if (my !== runId) return;
+    box.innerHTML = '';
+    if (!lines.length){ 
+      const e = document.createElement('div'); e.className='empty'; 
+      e.textContent='식단 텍스트를 판독하지 못했습니다. 아래 "이미지로 원본 대조"를 확인해 주세요.'; 
+      box.appendChild(e); return; 
+    }
+    lines.forEach(l => { 
+      const d = document.createElement('div'); 
+      d.className = l.title ? 't' : 'l'; 
+      d.textContent = l.text; 
+      box.appendChild(d); 
+    });
+  };
+  if (ocrCache.has(key)){ paint(ocrCache.get(key)); return; }
+  box.innerHTML = '<div class="empty">메뉴 불러오는 중…</div>';
+  const d = state.day, m = state.meal;
+  ocrChain = ocrChain.then(async () => {
+    if (ocrCache.has(key)) return paint(ocrCache.get(key));
+    if (my !== runId) return;
+    try{
+      const lines = await ocrCell(d, m);
+      ocrCache.set(key, lines); paint(lines);
+    }catch(e){
+      if (my !== runId) return;
+      box.innerHTML = '<div class="empty">식단 텍스트를 불러오지 못했습니다. 아래 원본 보기를 이용해 주세요.</div>';
+    }
+  });
+}
+
+/* ───────── 자동 갱신 및 이벤트 바인딩 ───────── */
+// 1분 주기 식사 시간 자동 갱신 & 시계 업데이트
+let lastTouch = Date.now();
+document.addEventListener('pointerdown', () => { lastTouch = Date.now(); });
+setInterval(() => {
+  // 5분 동안 조작이 없으면 자동으로 곧 먹을 식단으로 복귀
+  if (userManuallyInteracted && Date.now() - lastTouch > 5*60000) userManuallyInteracted = false;
+  syncCurrentTimeState();
+}, 60000);
+
+// 30분 주기 백그라운드 최신 식단 공지 재확인
+setInterval(() => {
+  start(true);
+}, 30 * 60000);
+
+// 브라우저 탭/화면 복귀 시 즉시 동기화
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    start(true);
+  }
+});
+
+$('toggleAll').onclick = () => {
+  const all = $('all'); all.hidden = !all.hidden;
+  $('toggleAll').textContent = all.hidden ? '주간표 전체' : '주간표 닫기';
+  if (!all.hidden) render();
+};
+$('toggleImg').onclick = () => { showImg = !showImg; render(); };$('today').onclick = async () => {
+  userManuallyInteracted = false;
+  const s = notice && notice.weekStart, t = new Date(); t.setHours(0,0,0,0);
+  if (s && t >= s && t < new Date(s.getTime() + 7*864e5)) init();
+  else await start();
+};
+$('prev').onclick = () => go(-1);$('next').onclick = () => go(1);
+
+start();
+</script>
+</body>
+</html>
