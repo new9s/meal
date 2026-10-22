@@ -6,521 +6,692 @@
 <meta name="color-scheme" content="light dark">
 <title>오늘의 식단</title>
 <style>
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
 :root {
-  --bg: #f8fafc;
+  --bg: #f6f8f7;
   --card: #ffffff;
-  --fg: #0f172a;
+  --fg: #111827;
   --sub: #64748b;
   --line: #e2e8f0;
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
+  --accent: #14b875;
+  --accent-top: #38df98;
+  --accent-bot: #0b995e;
+  --accent-soft: #e8f8f0;
   --accent-fg: #ffffff;
-  --chip: #f1f5f9;
-  --chip-active: #0f172a;
-  --warn: #d97706;
+  --chip: #e8f8f0;
+  --chip-active: #14b875;
+  --warn: #b45309;
   --warnbg: #fef3c7;
-  --main-dish: #dc2626;
-  --main-dish-bg: #fef2f2;
-  --shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --nav-btn-bg: linear-gradient(180deg, #f4fbf7 0%, #e6f4ec 100%);
+  --nav-btn-border: #c5e4d4;
+  --nav-btn-fg: #149a60;
+  --today-bg: linear-gradient(180deg, #ebf9f2 0%, #d6f1e4 100%);
+  --today-border: #22b573;
+  --today-fg: #0b6e41;
+  --main-dish: #064e3b;
+  --main-dish-bg: linear-gradient(180deg, #dcfaec 0%, #c8f5e0 52%, #d8f9ea 100%);
+  --main-dish-border: #2ec986;
+  --main-dish-fg: #064e3b;
+  --main-glow-1: rgba(52, 211, 153, 0.52);
+  --main-glow-2: rgba(16, 185, 129, 0.24);
+  --shadow: 0 6px 20px -2px rgba(15, 35, 25, 0.05), 0 2px 6px -1px rgba(15, 35, 25, 0.03);
+  --card-shadow: 0 6px 20px -2px rgba(15, 35, 25, 0.05), 0 2px 6px -1px rgba(15, 35, 25, 0.03);
+  --active-glow: 0 8px 18px -2px rgba(16, 185, 129, 0.45), 0 0 12px rgba(52, 211, 153, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #090d16;
-    --card: #131b2e;
-    --fg: #f8fafc;
-    --sub: #94a3b8;
-    --line: #1e293b;
-    --accent: #3b82f6;
-    --accent-soft: #1e293b;
-    --accent-fg: #ffffff;
-    --chip: #1e293b;
-    --chip-active: #38bdf8;
-    --warn: #fbbf24;
-    --warnbg: #291e05;
-    --main-dish: #f87171;
-    --main-dish-bg: #2d1519;
-    --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+    --bg: #0c1511;
+    --card: #13221c;
+    --fg: #f1f7f4;
+    --sub: #94aea3;
+    --line: #233c31;
+    --accent: #22c580;
+    --accent-top: #4ade9e;
+    --accent-bot: #0ca668;
+    --accent-soft: #1a3329;
+    --accent-fg: #062115;
+    --chip: #1a3329;
+    --chip-active: #34d399;
+    --warn: #fcd34d;
+    --warnbg: #3b2a0a;
+    --nav-btn-bg: linear-gradient(180deg, #1b3228 0%, #14261e 100%);
+    --nav-btn-border: #2e5443;
+    --nav-btn-fg: #52d99c;
+    --today-bg: linear-gradient(180deg, #1c382c 0%, #142b21 100%);
+    --today-border: #34d399;
+    --today-fg: #6ee7b7;
+    --main-dish: #a7f3d0;
+    --main-dish-bg: linear-gradient(180deg, #183b2d 0%, #122f24 55%, #193e2f 100%);
+    --main-dish-border: #34d399;
+    --main-dish-fg: #a7f3d0;
+    --main-glow-1: rgba(52, 211, 153, 0.42);
+    --main-glow-2: rgba(16, 185, 129, 0.20);
+    --shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+    --card-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+    --active-glow: 0 8px 22px -2px rgba(16, 185, 129, 0.5), 0 0 16px rgba(52, 211, 153, 0.4);
   }
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  padding: max(16px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
-  max-width: 520px;
-  margin: 0 auto;
-  line-height: 1.5;
-  letter-spacing: -0.02em;
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
+body {
+  margin: 0 auto;
+  max-width: 520px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-size: 19.2px !important;
+  padding: max(20px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+  line-height: 1.5;
+  letter-spacing: -0.025em;
+}
+
+/* 키프레임 애니메이션 모음 */
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-2.5px) rotate(1.5deg); }
+}
+@keyframes titleArtBreath {
+  0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.12)); }
+  50% { transform: translateY(-1.5px) scale(1.012); filter: drop-shadow(0 5px 12px rgba(16, 185, 129, 0.28)); }
+}
+@keyframes titleArtBreathDark {
+  0%, 100% { transform: translateY(0px) scale(1); filter: brightness(1.3) saturate(1.15) drop-shadow(0 2px 8px rgba(52, 211, 153, 0.32)); }
+  50% { transform: translateY(-1.5px) scale(1.012); filter: brightness(1.38) saturate(1.2) drop-shadow(0 5px 15px rgba(52, 211, 153, 0.5)); }
+}
+@keyframes pillGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.22), 0 5px 16px rgba(16, 185, 129, 0.42), inset 0 1.5px 1px rgba(255, 255, 255, 0.65); }
+  50% { box-shadow: 0 0 0 4.5px rgba(52, 211, 153, 0.34), 0 7px 22px rgba(16, 185, 129, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.8); }
+}
+@keyframes statusDotBlink {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 6px #ffffff, 0 0 10px #a7f3d0; }
+  50% { transform: scale(1.25); opacity: 0.85; box-shadow: 0 0 10px #ffffff, 0 0 16px #6ee7b7; }
+}
+@keyframes batteryPulse {
+  0%, 100% { box-shadow: 0 3px 12px rgba(245, 158, 11, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.8); }
+  50% { box-shadow: 0 4px 18px rgba(245, 158, 11, 0.48), 0 0 10px rgba(251, 191, 36, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.9); }
+}
+@keyframes mainDishAura {
+  0%, 100% {
+    box-shadow:
+      0 0 18px 4px var(--main-glow-1),
+      0 0 36px 10px var(--main-glow-2),
+      inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+  }
+  50% {
+    box-shadow:
+      0 0 26px 7px var(--main-glow-1),
+      0 0 48px 16px var(--main-glow-2),
+      inset 0 1.5px 3px rgba(255, 255, 255, 0.95);
+  }
+}
+@keyframes borderOrbitGlow {
+  0% {
+    top: 0%;
+    left: 10%;
+    width: 105px;
+    height: 16px;
+  }
+  32% {
+    top: 0%;
+    left: 90%;
+    width: 105px;
+    height: 16px;
+  }
+  36% {
+    top: 18%;
+    left: 99%;
+    width: 36px;
+    height: 28px;
+  }
+  40% {
+    top: 38%;
+    left: 100%;
+    width: 16px;
+    height: 46px;
+  }
+  46% {
+    top: 62%;
+    left: 100%;
+    width: 16px;
+    height: 46px;
+  }
+  50% {
+    top: 82%;
+    left: 99%;
+    width: 36px;
+    height: 28px;
+  }
+  54% {
+    top: 100%;
+    left: 90%;
+    width: 105px;
+    height: 16px;
+  }
+  86% {
+    top: 100%;
+    left: 10%;
+    width: 105px;
+    height: 16px;
+  }
+  90% {
+    top: 82%;
+    left: 1%;
+    width: 36px;
+    height: 28px;
+  }
+  93% {
+    top: 62%;
+    left: 0%;
+    width: 16px;
+    height: 46px;
+  }
+  97% {
+    top: 38%;
+    left: 0%;
+    width: 16px;
+    height: 46px;
+  }
+  99% {
+    top: 18%;
+    left: 1%;
+    width: 36px;
+    height: 28px;
+  }
+  100% {
+    top: 0%;
+    left: 10%;
+    width: 105px;
+    height: 16px;
+  }
+}
+@keyframes livePulseRed {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55), 0 4px 12px rgba(239, 68, 68, 0.35); }
+  50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0), 0 6px 18px rgba(239, 68, 68, 0.55); }
+}
+
+/* 1단계: 상단 헤더 */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin: 2px 0 18px;
+  gap: 8px;
 }
 h1 {
-  font-size: 17.6px;
+  font-size: 28.8px !important;
   font-weight: 800;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  color: var(--accent);
+  line-height: 1.3;
+  letter-spacing: -0.045em;
 }
+.logo-theme-preview {
+  display: flex;
+  flex: 0 0 auto;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  padding: 4px;
+  box-shadow: 0 4px 14px rgba(15, 40, 28, 0.08);
+  animation: logoFloat 4s ease-in-out infinite;
+}
+.logo-theme-preview img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  border-radius: 50%;
+}
+h1 .title-art-preview {
+  display: block;
+  width: 196px;
+  max-width: calc(100% - 74px);
+  height: auto;
+  object-fit: contain;
+  flex: 0 1 auto;
+  animation: titleArtBreath 3.6s ease-in-out infinite;
+}
+@media (prefers-color-scheme: dark) {
+  .logo-theme-preview {
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.22);
+    border-color: #2d5241;
+  }
+  h1 .title-art-preview {
+    animation: titleArtBreathDark 3.6s ease-in-out infinite;
+  }
+}
+
+/* 우측 자동 갱신 중 입체 캡슐 */
 .auto-pill {
-  font-size: 8.8px;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-  padding: 3px 8px;
-  border-radius: 99px;
-  font-weight: 600;
+  flex: none;
+  font-size: 13px !important;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(180deg, #43df99 0%, #17b874 52%, #0c9b5e 100%);
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #86efac;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  text-shadow: 0 1px 2px rgba(0, 60, 30, 0.25);
+  animation: pillGlowPulse 3s ease-in-out infinite;
 }
 .auto-pill::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  background: #10b981;
+  width: 7px;
+  height: 7px;
+  background: #bbf7d0;
   border-radius: 50%;
-  box-shadow: 0 0 6px #10b981;
+  animation: statusDotBlink 2s ease-in-out infinite;
 }
 
+/* 공통 카드 및 버튼 */
 .card {
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--card-shadow);
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  outline: none;
+}
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-button { font: inherit; cursor: pointer; border: 0; outline: none; }
-
-/* 주간 네비게이션 */
+/* 2단계: 주간 네비게이션 & 현재 시각 행 */
 .nav {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 10px 14px;
+  padding: 20px 18px;
 }
 .nav button.go {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--chip);
-  color: var(--fg);
-  font-size: 12.8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--nav-btn-bg);
+  border: 1.5px solid var(--nav-btn-border);
+  color: var(--nav-btn-fg);
+  font-size: 26px !important;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav button.go:hover:not(:disabled) { background: var(--accent); color: var(--accent-fg); }
-.nav button.go:disabled { opacity: 0.35; cursor: not-allowed; }
-.navtitle { text-align: center; }
-.navtitle .t-main { font-size: 12px; font-weight: 700; }
-.status { font-size: 9.6px; color: var(--sub); margin-top: 1px; min-height: 16px; }
-.status.err { color: #ef4444; }
+@media (prefers-color-scheme: dark) {
+  .nav button.go {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+.nav button.go:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-bot) 100%);
+  border-color: var(--accent);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--active-glow);
+}
+.nav button.go:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.navtitle {
+  text-align: center;
+}
+.navtitle .t-main {
+  font-size: 20.5px !important;
+  font-weight: 800;
+  color: var(--fg);
+  letter-spacing: -0.03em;
+}
+.status {
+  font-size: 14.5px !important;
+  font-weight: 500;
+  color: var(--sub);
+  margin-top: 5px;
+  min-height: 20px;
+}
+.status.err {
+  color: #ef4444;
+}
 
-/* 상단 정보행 */
 .nowrow {
   display: flex;
   gap: 8px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 2px 4px;
+  margin: 4px 2px 16px;
+  padding: 2px 2px;
 }
-.now { font-size: 10.4px; color: var(--sub); margin: 0; }
-.now b { color: var(--fg); font-weight: 700; }
-.today-btn {
-  padding: 5px 12px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--card);
+.now {
+  font-size: 16px !important;
+  color: var(--sub);
+  margin: 0;
+  font-weight: 500;
+}
+.now b {
   color: var(--fg);
-  font-size: 9.6px;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-weight: 800;
+}
+.today-btn {
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 13px;
+  border: 1.5px solid var(--today-border);
+  background: var(--today-bg);
+  color: var(--today-fg);
+  font-size: 15px !important;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+}
+@media (prefers-color-scheme: dark) {
+  .today-btn {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+}
+.today-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.26);
 }
 
-/* 식사 탭 */
+/* 3단계: 식사 탭 4종 & 요일 선택 바 */
 .tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 16px;
 }
 .tab {
-  padding: 10px 4px;
-  border-radius: 14px;
+  min-width: 0;
+  min-height: 74px;
+  padding: 12px 4px;
+  border-radius: 16px;
   background: var(--card);
   border: 1.5px solid var(--line);
-  color: var(--sub);
-  font-size: 11.2px;
-  font-weight: 700;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--fg);
+  font-size: 18.5px !important;
+  font-weight: 800;
   text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tab:hover:not([aria-selected="true"]) {
+  border-color: var(--accent);
 }
 .tab small {
   display: block;
   font-weight: 500;
-  font-size: 8px;
-  margin-top: 2px;
-  opacity: 0.8;
+  font-size: 12px !important;
+  color: var(--sub);
+  margin-top: 4px;
+  opacity: 0.95;
+  letter-spacing: -0.02em;
 }
 .tab[aria-selected="true"] {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(180deg, var(--accent-top) 0%, var(--accent) 52%, var(--accent-bot) 100%);
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: var(--active-glow), inset 0 1.5px 1px rgba(255, 255, 255, 0.55);
+  transform: translateY(-1px);
+}
+.tab[aria-selected="true"] small,
+.tab[aria-selected="true"] small::before {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
 }
 
-/* 요일 선택 */
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-bottom: 14px;
+  padding: 7px 6px;
+  margin-bottom: 16px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  box-shadow: var(--card-shadow);
 }
 .day {
+  min-height: 58px;
   padding: 8px 2px;
-  border-radius: 12px;
+  border-radius: 13px;
   background: transparent;
   color: var(--sub);
-  font-size: 10.4px;
+  font-size: 16px !important;
   font-weight: 600;
   text-align: center;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .day small {
   display: block;
-  font-size: 8px;
-  font-weight: 400;
-  margin-top: 2px;
+  font-size: 12px !important;
+  font-weight: 500;
+  margin-top: 4px;
+  opacity: 0.9;
 }
 .day[aria-selected="true"] {
-  background: var(--fg);
-  color: var(--bg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(180deg, var(--accent-top) 0%, var(--accent) 52%, var(--accent-bot) 100%);
+  color: #ffffff;
+  font-weight: 800;
+  border: 1px solid #34d399;
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.42), 0 0 10px rgba(52, 211, 153, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.55);
+}
+.day[aria-selected="true"] small {
+  color: #ffffff;
+  font-weight: 600;
+  opacity: 1;
 }
 .day.today:not([aria-selected="true"]) {
+  border: 1.5px solid var(--accent);
   color: var(--accent);
   font-weight: 800;
-  border: 1.5px solid var(--accent);
 }
 
-/* 식단 메뉴 영역 */
+/* 4단계: 하단 식단 메뉴 카드 + 곧 식사 배지 + 메인 메뉴 테두리 회전 광채 */
 .menu-box {
-  min-height: 220px;
+  min-height: 260px;
   display: flex;
   flex-direction: column;
+  padding: 24px 20px 26px;
+  border-radius: 22px;
 }
 .menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
+  gap: 8px;
+  margin-bottom: 18px;
+  padding-bottom: 4px;
+  border-bottom: none;
 }
 .badge {
-  font-size: 10.4px;
-  font-weight: 700;
+  font-size: 21.5px !important;
+  font-weight: 800;
   color: var(--fg);
+  letter-spacing: -0.035em;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.badge-live {
-  font-size: 8px;
-  color: #fff;
-  background: #ef4444;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-weight: 800;
-  animation: pulse 1.5s infinite;
-}
-.badge-live.soon { background: #f59e0b; animation: none; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
+/* LIVE 배지 및 골드 옐로우 곧 식사 배지 (.badge-live.soon) */
+.badge-live {
+  position: relative;
+  font-size: 12px !important;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 55%, #dc2626 100%);
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1.5px solid #fca5a5;
+  animation: livePulseRed 1.8s infinite;
+}
+.badge-live.soon {
+  position: relative;
+  color: #1e293b;
+  background: linear-gradient(180deg, #fffbeb 0%, #fef08a 45%, #fde047 100%);
+  border: 1.5px solid #f59e0b;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px !important;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  animation: batteryPulse 2.6s ease-in-out infinite;
+}
+
+/* 메뉴 리스트 및 메인 요리 민트 광채 박스 */
 .menu-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 6px 0;
+  gap: 12px;
+  padding: 6px 0 10px;
   text-align: center;
 }
 .menu-list .t {
-  color: var(--main-dish);
+  position: relative;
+  color: var(--main-dish-fg);
   background: var(--main-dish-bg);
+  border: 1.5px solid var(--main-dish-border);
   font-weight: 800;
-  font-size: 15.2px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  margin-bottom: 4px;
-  letter-spacing: -0.01em;
+  font-size: 22.8px !important;
+  padding: 15px 14px;
+  border-radius: 13px;
+  margin: 2px 2px 12px;
+  letter-spacing: -0.02em;
+  animation: mainDishAura 3.2s ease-in-out infinite;
+  z-index: 1;
+}
+/* 메인 요리 테두리 전체를 느리게 도는 빛(Flare Orbit) 효과 */
+.menu-list .t::before {
+  content: "";
+  position: absolute;
+  top: 0%;
+  left: 10%;
+  width: 105px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.98) 0%, rgba(167, 243, 208, 0.85) 35%, rgba(52, 211, 153, 0.45) 62%, transparent 80%);
+  pointer-events: none;
+  filter: blur(1.2px);
+  animation: borderOrbitGlow 9s linear infinite;
+}
+.menu-list .t::after {
+  content: "";
+  position: absolute;
+  top: 0%;
+  left: 10%;
+  width: 135px;
+  height: 24px;
+  transform: translate(-50%, -50%) scale(1.25);
+  background: radial-gradient(ellipse at center, rgba(110, 231, 183, 0.65) 0%, rgba(16, 185, 129, 0.32) 50%, transparent 78%);
+  pointer-events: none;
+  filter: blur(4px);
+  animation: borderOrbitGlow 9s linear infinite;
 }
 .menu-list .l {
-  font-size: 12.8px;
+  font-size: 19px !important;
   color: var(--fg);
-  font-weight: 500;
-  padding: 3px 0;
+  font-weight: 600;
+  padding: 5px 0;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
 }
 .menu-list .empty {
   color: var(--sub);
-  font-size: 11.2px;
+  font-size: 16.8px !important;
   padding: 40px 0;
 }
 
 .warn {
   background: var(--warnbg);
   color: var(--warn);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 9.6px;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 14.4px !important;
   margin-bottom: 12px;
   font-weight: 600;
 }
 .ocrnote {
-  font-size: 8.8px;
+  font-size: 12.5px !important;
   color: var(--sub);
-  margin-top: 14px;
+  margin-top: 18px;
   text-align: center;
 }
 .links {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  font-size: 9.6px;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  font-size: 13px !important;
   margin-top: 12px;
 }
-.links a, .links button {
-  color: var(--sub);
-  text-decoration: underline;
-  background: none;
-  padding: 0;
-}
-
-canvas { width: 100%; height: auto; display: block; border-radius: 8px; }
-.imgview { display: flex; flex-direction: column; gap: 8px; }
-[hidden] { display: none !important; }
-
-/* 프레시밀에서 착안한 식단 화면 테마 — 기존 동작/마크업 불변 */
-:root {
-  --bg: #f8f8f2;
-  --card: #ffffff;
-  --fg: #263126;
-  --sub: #687469;
-  --line: #e5e9dd;
-  --accent: #426b39;
-  --accent-soft: #edf4e7;
-  --accent-fg: #ffffff;
-  --chip: #eff3e9;
-  --chip-active: #426b39;
-  --warn: #925c16;
-  --warnbg: #fff4df;
-  --main-dish: #365e32;
-  --main-dish-bg: #eef5e9;
-  --shadow: 0 6px 24px rgba(37, 62, 33, .055);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #151c17;
-    --card: #202b22;
-    --fg: #f0f4ed;
-    --sub: #abb9a9;
-    --line: #354438;
-    --accent: #9bc984;
-    --accent-soft: #2d402e;
-    --accent-fg: #152416;
-    --chip: #2a392d;
-    --chip-active: #9bc984;
-    --warn: #f2ca86;
-    --warnbg: #41331e;
-    --main-dish: #cae5af;
-    --main-dish-bg: #2d402e;
-    --shadow: 0 8px 24px rgba(0, 0, 0, .2);
-  }
-}
-body {
-  padding: max(24px, env(safe-area-inset-top)) 18px max(36px, env(safe-area-inset-bottom));
-  line-height: 1.55;
-}
-header { margin: 2px 0 22px; gap: 8px; }
-h1 { font-size: 19.2px; letter-spacing: -.045em; line-height: 1.3; }
-.auto-pill {
-  flex: none;
-  color: #426b39;
-  background: #eaf2e3;
-  padding: 6px 10px;
-  font-size: 8px;
-}
-.auto-pill::before { background: #67a252; box-shadow: none; }
-@media (prefers-color-scheme: dark) {
-  .auto-pill { color: #c6e5b7; background: #2c422f; }
-  .auto-pill::before { background: #9bc984; }
-}
-.card {
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.nav { padding: 14px 16px; gap: 10px; }
-.nav button.go {
-  width: 44px;
-  height: 44px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 18.4px;
-}
-.navtitle .t-main { font-size: 12.8px; letter-spacing: -.035em; }
-.status { font-size: 9.6px; margin-top: 3px; }
-.status.err { color: #b64232; }
-.nowrow { padding: 2px 2px; margin: 3px 0 16px; }
-.now { font-size: 9.6px; }
-.today-btn {
-  min-height: 44px;
-  padding: 8px 16px;
-  border-color: var(--accent);
-  border-radius: 99px;
-  color: var(--accent);
-  box-shadow: none;
-}
-.tabs { gap: 7px; margin-bottom: 16px; }
-.tab {
-  min-height: 64px;
-  padding: 10px 2px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  font-size: 11.2px;
-  color: var(--fg);
-}
-.tab small { color: var(--sub); opacity: 1; font-size: 8px; }
-.tab[aria-selected="true"] {
-  box-shadow: 0 4px 10px rgba(45, 90, 41, .14);
-}
-.tab[aria-selected="true"] small { color: inherit; opacity: .9; }
-.days {
-  gap: 3px;
-  padding: 5px 2px;
-  margin-bottom: 16px;
-  border-radius: 17px;
-  background: var(--card);
-  border: 1px solid var(--line);
-}
-.day { min-height: 50px; padding: 7px 1px; border-radius: 13px; }
-.day small { font-size: 8px; }
-.day[aria-selected="true"] {
-  color: var(--accent-fg);
-  background: var(--accent);
-  box-shadow: none;
-}
-.day.today:not([aria-selected="true"]) {
-  border: 1px solid var(--accent);
-  color: var(--accent);
-}
-.menu-box { padding: 20px 18px 22px; }
-.menu-header { margin-bottom: 14px; padding-bottom: 14px; }
-.badge { font-size: 12.8px; letter-spacing: -.035em; }
-.badge-live { border-radius: 99px; padding: 4px 8px; }
-.menu-list { gap: 10px; padding: 7px 0 12px; }
-.menu-list .t {
-  font-size: 15.2px;
-  border-radius: 14px;
-  padding: 13px 10px;
-  margin-bottom: 6px;
-}
-.menu-list .l { font-size: 12.8px; padding: 4px 0; }
-.warn { border-radius: 12px; padding: 11px 13px; }
-.ocrnote { margin-top: 18px; }
-.links { gap: 8px 16px; flex-wrap: wrap; margin-top: 16px; }
-.links a, .links button {
+.links a,
+.links button {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   color: var(--accent);
+  text-decoration: underline;
   text-underline-offset: 3px;
+  background: none;
+  padding: 4px;
+  font-weight: 600;
 }
-button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+.imgview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 440px) {
+  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .tab { min-width: 0; }
+  .tab small { font-size: 0 !important; line-height: 0; }
+  .tab small::before { display: block; font-size: 12px; line-height: 1.5; white-space: pre-line; }
+  .tab[data-key="breakfast"] small::before { content: "06:10~\A 07:00"; }
+  .tab[data-key="lunch"] small::before { content: "12:00~\A 13:00"; }
+  .tab[data-key="dinner"] small::before { content: "17:30~\A 18:00"; }
+  .tab[data-key="night"] small::before { content: "00:00~\A 00:30"; }
+}
 @media (max-width: 360px) {
   body { padding-left: 12px; padding-right: 12px; }
-  h1 { font-size: 16.8px; }
-  .auto-pill { padding: 5px 7px; }
-  .tab small { font-size: 7.2px; }
+  h1 { font-size: 24px !important; }
+  .auto-pill { padding: 6px 10px; font-size: 11.5px !important; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .tab, .day, .nav button.go { transition: none; }
-  .badge-live { animation: none; }
-}
-
-</style>
-<style>
-
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-:root{--bg:#F9F9F9;--card:#FFFFFF;--fg:#222222;--sub:#6B6B6B;--line:#E0E0E0;--accent:#00A862;--accent-soft:#E6F6EF;--accent-fg:#FFFFFF;--chip:#F1F1F1;--chip-active:#00A862;--main-dish:#004D25;--main-dish-bg:#E6F6EF;--shadow:0 4px 12px rgba(0,0,0,.05);}
-body{font-family:"Pretendard",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding-left:16px;padding-right:16px;}
-h1{font-size:19.2px;font-weight:700;color:#00A862;line-height:1.4}
-.auto-pill{color:#004D25;background:#E6F6EF}.auto-pill::before{background:#00A862}
-.card{border:1px solid #E0E0E0;border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-.nav button.go{border-radius:8px;background:transparent;border:1px solid #00A862;color:#00A862}
-.nav button.go:hover:not(:disabled){background:#008C51;color:#fff}
-.navtitle .t-main{font-size:14.4px;font-weight:500;color:#004D25}
-.today-btn{border-radius:8px;border:1px solid #00A862;color:#00A862;background:transparent}
-.tab{border-radius:8px;border:1px solid #E0E0E0;font-size:12px}
-.tab[aria-selected="true"]{background:#00A862;border-color:#00A862;color:#fff;box-shadow:none}
-.tab:hover:not([aria-selected="true"]){border-color:#00A862}
-.days{border-radius:12px;border:1px solid #E0E0E0}
-.day{border-radius:8px}
-.day[aria-selected="true"]{background:#00A862;color:#fff}
-.day.today:not([aria-selected="true"]){border:1px solid #00A862;color:#00A862}
-.badge{font-size:14.4px;font-weight:500;color:#004D25}
-.badge-live{background:#FFC72C;color:#222;animation:none}
-.badge-live.soon{background:#FFC72C;color:#222}
-.menu-list .t{color:#004D25;background:#E6F6EF;border-radius:12px;font-weight:700}
-.menu-list .l{font-size:12px;line-height:1.6;color:#222}
-.ocrnote{font-size:9.6px}
-.links a,.links button{color:#00A862}
-
-</style>
-<style>
-body{font-size:19.2px!important;}
-h1{font-size:28.8px!important;}
-.auto-pill{font-size:12px!important;}
-.nav button.go{font-size:27.6px!important;}
-.navtitle .t-main{font-size:21.6px!important;}
-.status{font-size:14.4px!important;}
-.now{font-size:14.4px!important;}
-.today-btn{font-size:14.4px!important;}
-.tab{font-size:18px!important;}
-.tab small{font-size:12px!important;}
-.day{font-size:15.6px!important;}
-.day small{font-size:12px!important;}
-.badge{font-size:21.6px!important;}
-.badge-live{font-size:12px!important;}
-.menu-list .t{font-size:22.8px!important;}
-.menu-list .l{font-size:18px!important;}
-
-.warn{font-size:14.4px!important;}
-.ocrnote{font-size:14.4px!important;}
-.links{font-size:14.4px!important;}
-.menu-list .empty{font-size:16.8px!important}
-</style>
-<style>
-@media(prefers-color-scheme:dark){:root{--bg:#101A15;--card:#1A2921;--fg:#F1F5F2;--sub:#B0BFB5;--line:#344B3D;--accent:#52D99C;--accent-soft:#203F2D;--accent-fg:#10281B;--chip:#203F2D;--main-dish:#9CE7B9;--main-dish-bg:#203F2D;--shadow:0 4px 12px rgba(0,0,0,.2)}h1{color:#52D99C}.auto-pill{color:#9CE7B9;background:#203F2D}.auto-pill::before{background:#52D99C}.card{border-color:#344B3D;box-shadow:var(--shadow)}.nav button.go{border-color:#52D99C;color:#52D99C}.navtitle .t-main,.badge{color:#C1E8CE}.today-btn{border-color:#52D99C;color:#52D99C}.tab{border-color:#344B3D}.tab[aria-selected="true"]{background:#52D99C;border-color:#52D99C;color:#10281B}.days{border-color:#344B3D}.day[aria-selected="true"]{background:#52D99C;color:#10281B}.day.today:not([aria-selected="true"]){border-color:#52D99C;color:#52D99C}.menu-list .t{color:#9CE7B9;background:#203F2D}.menu-list .l{color:#F1F5F2}.links a,.links button{color:#52D99C}}
-</style>
-<style>
-h1{flex:1;min-width:0;gap:8px}h1 .title-art-preview{display:block;width:182px;max-width:calc(100% - 74px);height:auto;object-fit:contain;flex:0 1 auto}
-</style>
-<style>
-@media (max-width: 440px){.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.tab{min-width:0}.tab small{font-size:0!important;line-height:0}.tab small::before{display:block;font-size:12px;line-height:1.5;white-space:pre-line}.tab[data-key="breakfast"] small::before{content:"06:10~\A 07:00"}.tab[data-key="lunch"] small::before{content:"12:00~\A 13:00"}.tab[data-key="dinner"] small::before{content:"17:30~\A 18:00"}.tab[data-key="night"] small::before{content:"00:00~\A 00:30"}}
 </style>
 </head>
 <body>
@@ -620,7 +791,7 @@ function detectGrid(im){
       chain.push([W-1,W-1]);
     }
     const dayX=chain[0][0], leftLines=vl.filter(v=>v[1]<dayX-5);
-    if(leftLines.length<2)return failed('식사명 열을 찾지 못했습니다.');
+    const clippedLeft=leftLines.length===1&&leftLines[0][0]<W*.06; if(clippedLeft)leftLines.unshift([0,0]); if(leftLines.length<2)return failed('식사명 열을 찾지 못했습니다.');
     const labelLeft=leftLines[leftLines.length-2],labelRight=leftLines[leftLines.length-1];
     if(labelRight[0]-labelLeft[1]<15)return failed('식사명 열이 너무 좁습니다.');
     const xa=labelLeft[1]+5, xb=labelRight[0]-5;
@@ -637,6 +808,7 @@ function detectGrid(im){
     }
     const rawRows=runs(labelScore,.65).filter(v=>v[0]>H*.08&&v[0]<H*.95), edges=[];
     for(const r of rawRows){const last=edges[edges.length-1];if(last&&r[0]-last[1]<=4)last[1]=r[1];else edges.push([...r]);}
+    if(clippedLeft){const supports=edges.map(edge=>{const y=Math.round((edge[0]+edge[1])/2);let supported=0;const ratios=[];for(let k=0;k<7;k++){let hit=0,total=0;for(let x=chain[k][1]+5;x<chain[k+1][0]-5;x++){total++;let on=false;for(let yy=Math.max(4,y-3);yy<=Math.min(H-5,y+3);yy++){const p=yy*W+x;if(L[p]<220&&L[p]<L[p-3*W]-12&&L[p]<L[p+3*W]-12){on=true;break;}}if(on)hit++;}ratios.push(hit/Math.max(1,total));if(hit/Math.max(1,total)>.45)supported++;}return {edge,supported,ratios};}); for(let i=edges.length-1;i>=0;i--)if(supports[i].supported<4)edges.splice(i,1);}
     // 마지막 선 대신 지속적인 바닥 배경 전환이 있는 경우만 종료 경계로 보완한다.
     if(edges.length===4){
       for(let y=edges[3][1]+Math.floor(H*.07);y<H*.94;y++){
@@ -705,36 +877,51 @@ function labelCanvas(im,r,tight=true){
   const s=tight?Math.min(6,Math.max(2,64/(y1-y0+1))):4,p=16,c=document.createElement('canvas');c.width=Math.round((x1-x0+1)*s)+p*2;c.height=Math.round((y1-y0+1)*s)+p*2;
   const z=c.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,c.width,c.height);if(tight)z.drawImage(raw,x0,y0,x1-x0+1,y1-y0+1,p,p,c.width-p*2,c.height-p*2);else z.drawImage(im,r.x,r.y,r.w,r.h,p,p,c.width-p*2,c.height-p*2);return c;
 }
+// 1차는 65, 추가 1회는 40. 점수와 별개로 예상 글자가 정확히 맞아야 한다.
+async function readCheckedLabel(worker,c,expected){
+  const attempts=[];
+  const read=async threshold=>{const r=await recognizeOCR(worker,c);const a={attempt:attempts.length+1,text:(r.data.text||'').replace(/\s/g,''),confidence:r.data.confidence,threshold};attempts.push(a);return a;};
+  try{
+    let best=await read(65);
+    if(!expected.includes(best.text)||best.confidence<65){
+      const cx=c.getContext('2d'),d=cx.getImageData(0,0,c.width,c.height);
+      for(let i=0;i<d.data.length;i+=4){const v=.3*d.data[i]+.59*d.data[i+1]+.11*d.data[i+2]<180?0:255;d.data[i]=d.data[i+1]=d.data[i+2]=v;}
+      cx.putImageData(d,0,0);best=await read(40);
+    }
+    return {...best,attempts,expected,ok:expected.includes(best.text)&&best.confidence>=best.threshold};
+  }catch(error){error.ocrAudit={expected,attempts};throw error;}
+}
+function failureDescription(failure){
+  if(!failure)return '';
+  const parts=[];if(failure.location)parts.push(failure.location);
+  if(failure.expected&&failure.expected.length)parts.push('예상: '+failure.expected.join(' 또는 '));
+  for(const a of failure.attempts||[])parts.push(a.attempt+'차: '+(a.text||'(빈 결과)')+' / 신뢰도 '+Math.round(a.confidence)+' / 기준 '+a.threshold);
+  if(failure.error)parts.push(failure.error);return parts.join(' · ');
+}
 async function verifyGrid(im,g){
   if(!g.detected)return g;
-  const worker=await getWorker(),audit={labels:[],weekdays:[]};
-  const fail=reason=>({...g,valid:false,reason,audit});
+  const audit={labels:[],weekdays:[]};let worker=null,location='검증 엔진 준비';
+  const fail=(reason,failure)=>({...g,valid:false,reason,audit,...(failure?{failure}: {})});
   try{
-    await setOCRParameters(worker,{tessedit_pageseg_mode:'7'});
-    const readLabel=async(c,expected)=>{
-      let res=await recognizeOCR(worker,c);const attempts=[{text:res.data.text.replace(/\s/g,''),confidence:res.data.confidence}];
-      if(attempts[0].confidence<65||!expected.includes(attempts[0].text)){const z=c.getContext('2d'),d=z.getImageData(0,0,c.width,c.height);for(let j=0;j<d.data.length;j+=4){const v=.3*d.data[j]+.59*d.data[j+1]+.11*d.data[j+2]<180?0:255;d.data[j]=d.data[j+1]=d.data[j+2]=v;}z.putImageData(d,0,0);res=await recognizeOCR(worker,c);attempts.push({text:res.data.text.replace(/\s/g,''),confidence:res.data.confidence});}
-      const best=attempts[attempts.length-1];return {...best,attempts,ok:expected.includes(best.text)&&best.confidence>=65};
-    };
-    const expected=['조식','중식','석식','야식'];
-    const inset=Math.max(3,Math.round(im.naturalWidth/1200*3));
+    worker=await getWorker();await setOCRParameters(worker,{tessedit_pageseg_mode:'7'});
+    const expected=['조식','중식','석식','야식'],inset=Math.max(3,Math.round(im.naturalWidth/1200*3));
     for(let i=0;i<4;i++){
-      const [a,b]=g.meals[MEAL_KEYS[i]],c=labelCanvas(im,{x:g.label[0],y:a+inset,w:g.label[1]-g.label[0],h:b-a-2*inset});
-      if(!c)return fail('식사명을 판독하지 못했습니다.');
-      const result=await readLabel(c,[expected[i]]);audit.labels.push(result);
-      if(!result.ok)return fail('식사명과 식사 칸이 일치하지 않습니다.');
+      location='식사명 '+expected[i];const [a,b]=g.meals[MEAL_KEYS[i]],c=labelCanvas(im,{x:g.label[0],y:a+inset,w:g.label[1]-g.label[0],h:b-a-2*inset});
+      if(!c)return fail('식사명을 판독하지 못했습니다.',{location,expected:[expected[i]],attempts:[]});
+      const result=await readCheckedLabel(worker,c,[expected[i]]);audit.labels.push(result);
+      if(!result.ok)return fail('식사명과 식사 칸이 일치하지 않습니다.',{location,...result});
     }
     g.checks.labels=true;
     for(let i=0;i<7;i++){
-      const large=im.naturalWidth>=1600, pad=large?inset:0;
+      location=DOW[i]+'요일 머리글';const large=im.naturalWidth>=1600,pad=large?inset:0;
       const c=labelCanvas(im,{x:g.cols[i][1]+(large?inset:2),y:g.weekday[0]+pad,w:g.cols[i+1][0]-g.cols[i][1]-2*(large?inset:2),h:g.weekday[1]-g.weekday[0]+1-2*pad},large);
-      if(!c)return fail('요일 머리글을 확인하지 못했습니다.');
-      const result=await readLabel(c,[DOW[i],DOW[i]+'요일']);audit.weekdays.push(result);
-      if(!result.ok)return fail('요일 머리글과 칸 순서가 일치하지 않습니다.');
+      if(!c)return fail('요일 머리글을 확인하지 못했습니다.',{location,expected:[DOW[i],DOW[i]+'요일'],attempts:[]});
+      const result=await readCheckedLabel(worker,c,[DOW[i],DOW[i]+'요일']);audit.weekdays.push(result);
+      if(!result.ok)return fail('요일 머리글과 칸 순서가 일치하지 않습니다.',{location,...result});
     }
-    g.checks.weekdays=true;
-    return {...g,valid:true,reason:'',audit};
-  }finally{await setOCRParameters(worker,{tessedit_pageseg_mode:'6'}).catch(()=>{});}
+    g.checks.weekdays=true;return {...g,valid:true,reason:'',audit};
+  }catch(e){return fail('표 검증 중 OCR 처리를 완료하지 못했습니다.',{location,...(e.ocrAudit||{}),error:e.message});}
+  finally{if(worker)await setOCRParameters(worker,{tessedit_pageseg_mode:'6'}).catch(()=>{});}
 }
 function mealAt(d){
   const m = d.getHours() * 60 + d.getMinutes();
@@ -805,16 +992,17 @@ async function show(n){
   const my=++showSequence; ++runId;
   setStatus('표 구조와 식사명·요일 확인 중…');
   const nextImage=await loadImage(n.fileNm),candidate=detectGrid(nextImage);
-  const job=ocrChain.catch(()=>{}).then(()=>verifyGrid(nextImage,candidate));
+  foregroundOCR++;
+  const job=ocrChain.catch(()=>{}).then(()=>verifyGrid(nextImage,candidate)).finally(()=>{foregroundOCR=Math.max(0,foregroundOCR-1);});
   ocrChain=job.catch(()=>{});
   let checked;try{checked=await job;}catch(e){checked={detected:false,valid:false,reason:'표 검증을 완료하지 못했습니다. 원본을 확인해 주세요.'};}
   if(my!==showSequence)return;
   img=nextImage;grid=checked;ocrCache.clear();
-  window.mealDiagnostics={version:'1.7',notice:n.boardIdx,image:{width:img.naturalWidth,height:img.naturalHeight},grid:checked,ocr:{}};
+  window.mealDiagnostics={version:'1.11',notice:n.boardIdx,image:{width:img.naturalWidth,height:img.naturalHeight},grid:checked,ocr:{}};
   notice = n;
   notice.weekStart = weekStartOf(n);
   try{ localStorage.setItem('mealIdx', n.boardIdx); }catch(e){}
-  $('ntitle').textContent = n.title;
+  $('ntitle').textContent = String(n.title||'').replace(/입니다:D\s*$/,'').trim();
   const ws = notice.weekStart, we = ws && new Date(ws.getTime() + 6*864e5);
   setStatus(ws ? `${ws.getMonth()+1}월 ${ws.getDate()}일 ~ ${we.getMonth()+1}월 ${we.getDate()}일` : '');
   init();
@@ -967,6 +1155,7 @@ function render(){
   if(!grid||!grid.valid){
     ++runId;$('menu').hidden=false;$('imgview').hidden=true;$('toggleImg').disabled=true;
     $('menu').innerHTML='';const warning=document.createElement('div');warning.className='warn';warning.textContent='판독 확인 필요: '+(grid&&grid.reason||'표 경계를 확인하지 못했습니다.');$('menu').appendChild(warning);
+    const detailText=failureDescription(grid&&grid.failure);if(detailText){const detail=document.createElement('div');detail.className='empty';detail.textContent=detailText;$('menu').appendChild(detail);}
     const help=document.createElement('div');help.className='empty';help.textContent='잘못된 칸의 OCR은 중단했어요. 전체 원본 보기를 이용해 주세요.';$('menu').appendChild(help);
     $('ocrNote').textContent='표 검증에 실패해 텍스트 판독을 중단했습니다.';
     if(!$('all').hidden){const c=$('all');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);}return;
@@ -983,24 +1172,19 @@ function render(){
   if (!showImg) showText(); else ++runId;
 }
 
-/* ───────── OCR v1.7: 원본 줄 단위 판독 ─────────
-   1) 검증된 칸 안에서 장식 그림을 빼고 글자 줄을 나눈다
-   2) 줄마다 기본 한국어 모델로 읽는다
-   3) 원본 글자 폭으로 센 글자 수보다 모자라면 한글 전용 모델, 그다음 한 글자씩 읽어 비슷한 글자로 채운다
-   4) 맨 끝의 좁은 글자(F·S 등)는 영문 모델로 따로 확인한다
-   5) 모양이 닮은 글자 차이만 메뉴 사전으로 교정한다 (글자 수가 같은 후보만) */
+/* OCR v1.11: kor 단일 엔진, 누락 의심 줄만 최대 1회 재판독, 영문 제거 */
 const ocrCache=new Map();let workerP=null,runId=0,ocrChain=Promise.resolve();
-const extraWorkers=new Map(),extraFailedUntil=new Map();
 function terminateOCRWorker(w){try{return Promise.resolve(w.terminate()).catch(()=>{});}catch(e){return Promise.resolve();}}
 function withOCRDeadline(task,ms,onTimeout){return new Promise((resolve,reject)=>{let done=false;const t=setTimeout(()=>{if(done)return;done=true;try{onTimeout&&onTimeout();}catch(e){}reject(new Error('OCR 시간 초과'));},ms);
   Promise.resolve(task).then(v=>{if(done)return;done=true;clearTimeout(t);resolve(v);},e=>{if(done)return;done=true;clearTimeout(t);reject(e);});});}
-function invalidateOCRWorker(kind,w){if(kind==='main'){if(!w||!workerP||workerP.__w===w)workerP=null;}else{extraWorkers.delete(kind);extraFailedUntil.set(kind,Date.now()+60000);}if(w)terminateOCRWorker(w);}
+function invalidateOCRWorker(kind,w){if(kind==='main'){if(!w||!workerP||workerP.__w===w)workerP=null;}if(w)terminateOCRWorker(w);}
 async function setOCRParameters(w,params,kind='main'){try{return await withOCRDeadline(w.setParameters(params),5000,()=>invalidateOCRWorker(kind,w));}catch(e){invalidateOCRWorker(kind,w);throw e;}}
 async function recognizeOCR(w,image,output,kind='main'){try{return await withOCRDeadline(w.recognize(image,{},output),15000,()=>invalidateOCRWorker(kind,w));}catch(e){invalidateOCRWorker(kind,w);throw e;}}
 function getWorker(){
   if(!workerP){
     let made=null,abandoned=false;
     const creation=Tesseract.createWorker('kor',1,{logger:m=>{
+      if(backgroundDateOCR)return;
       if(m.status&&m.status.includes('loading'))$('menu').dataset.msg='엔진 준비 중… '+Math.round((m.progress||0)*100)+'%';
       else if(m.status==='recognizing text')$('menu').dataset.msg='메뉴 판독 중… '+Math.round((m.progress||0)*100)+'%';
       const el=document.querySelector('#menu .empty');if(el&&$('menu').dataset.msg)el.textContent=$('menu').dataset.msg;
@@ -1012,47 +1196,6 @@ function getWorker(){
   return workerP;
 }
 
-
-// 보조 모델: 한글 전용(정확도 우선, 최초 1회 약 12MB 내려받음)·영문. 실패하면 기본 모델만으로 계속한다
-function getExtraWorker(kind){
-  if((extraFailedUntil.get(kind)||0)>Date.now())return Promise.resolve(null);
-  if(!extraWorkers.has(kind)){
-    const opt=kind==='Hangul'?{langPath:'https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/refs/heads/main/script',gzip:false,cachePath:'meal-ocr17-Hangul'}:{cachePath:'meal-ocr17-eng'};
-    let made=null;const creation=Tesseract.createWorker(kind,1,opt).then(w=>{made=w;return w;});
-    extraWorkers.set(kind,withOCRDeadline(creation,30000,()=>{if(made)terminateOCRWorker(made);else creation.then(terminateOCRWorker).catch(()=>{});}).catch(()=>{invalidateOCRWorker(kind,made);return null;}));
-  }
-  return extraWorkers.get(kind);
-}
-async function tryRead(w,kind,canvas,psm){try{return await readText(w,kind,canvas,psm);}catch(e){return null;}}
-async function readText(w,kind,canvas,psm,blocks){await setOCRParameters(w,{tessedit_pageseg_mode:psm},kind);return recognizeOCR(w,canvas,blocks?{blocks:true}:undefined,kind);}
-
-const DICT_RAW = ['쌀밥','현미밥','흑미밥','잡곡밥','추가밥','미역국','소고기미역국','배추김치','깍두기','총각김치','배추겉절이','부추겉절이',
-  '셀프라면9종','셀프계란F','시리얼&빵&잼','그린샐러드','우유','초코우유','요구르트','사과주스','야채계란찜','열무고추장무침',
-  '미역고추장무침','땡초콩나물국','군만두','궁중떡볶음','홍합탕','두부조림','핑크쌈무','양념장','꽈리고추제육볶음','단호박튀김&양념장',
-  '오징어볶음&소면사리','시래기콩나물밥&양념장','김치국','깻잎지무침','콩나물국','계란F','계란','김',
-  '셌프계란F','시리얼&빵&잼','그린샐러드','셌프라면9종','동태전&양념장','얼큰수제비국','고들빼기무침','짬뽕국','꿔바로우',
-  '연두부찜&양념장','부대찌개','감자전&양념장','새송이볶음','부추와사비무침','닭살콩나물찜','호박된장국','미역초무침',
-  '소고기해장국','고기산적구이&케찹','메추리알장조림','시금치나물','제육두반장볶음','호박새우젓국','미트볼조림',
-  '멸치콩자반','바베큐폭찹','건새우무국','잡채','건파래','비엔나김치볶음','흑미밥','당면소고기무국','스크램블에그',
-  '상추겉절이','파채닭보쌈','배추된장국','쫑면무침','청경채겉절이','김치볶음밥&김가루','사골파국','생선커틀릿&타르S',
-  '떡갈비구이&케찹','감자채볶음','상추오리엔탈무침','콩불고기','들깨감자옹심이국','계란두부전&양념장','고사리볶음',
-  '치킨가라아게&갈릭디핑S','오이피클','당면버섯소불고기','비엔나피망볶음','숙주나물','꽈리고추닭갈비','열무된장국',
-  '어묵볶음','고췹잎무침','설렁탕&소면사리','해물파전&양념장','가지나물','포도주스','숙닉','마카로니샐러드','설탕꽈배기',
-  '식혜','쥬시쿨','청귤주스','매콤돼지갈비찜','물만두찜&양념장','오이생채','철판불짜장','계란국','탕수육','삼색냉채',
-  '대파육개장','깐쇼새우','땅콩조림','오렌지주스','재스민차','밤식혜','검은콩두유','배주스','딸기우유','꽃빵튀김',
-  '해물순두부찌개','매콤두부조림','깻잎무쌈','총각김치','비타민두유','흰우유','호두아몬드두유','잡곡밥'];
-// v1.4: 사전 오타 정리(셌프→셀프, 쫑면→쫄면, 고췹잎→고춧잎, 숙닉 삭제)와 메뉴 추가
-const DICT = [...new Set(DICT_RAW.filter(w => !['셌프계란F','셌프라면9종','숙닉','고췹잎무침','쫑면무침'].includes(w)).concat([
-  '쫄면무침','고춧잎무침','현미밥','추가밥','계란국','숭늉','석류에이드','쌀음료','ABC주스','녹차','깐마늘장아찌무침',
-  '청양후랑크볶음','팽이호박나물','땡초투움바스파게티','브로컬리그린빈볶음','시래기된장지짐','철판불맛오돈불고기','계란F',
-  '배추겉절이','해물순두부찌개','쥬시쿨','배주스','밤식혜','재스민차','꽃빵튀김','검은콩두유','흰우유','초코우유',
-  // '/'로 묶여 한 줄에 나오는 조합은 줄 전체로 맞춘다
-  '쌀밥/현미밥','추가밥/계란국','그린샐러드/우유/김/계란F','석류에이드/숭늉','쌀음료/숭늉','ABC주스/숭늉']))];
-
-
-// 메뉴 사전: 기존 메뉴 + 지금까지 저장한 새 메뉴
-function menuDictionary(){return DICT;}
-function menuParts(dict){const s=new Set();for(const w of dict){s.add(w);for(const p of w.split(/[\/&]/))if(p.length>=2)s.add(p);}return [...s];}
 
 // ── 1) 줄 나누기 ──
 function isInk(d,i){const r=d[i],g=d[i+1],b=d[i+2];return .3*r+.59*g+.11*b<165||(r>150&&g<90&&b<90);}
@@ -1070,7 +1213,7 @@ function splitLines(image,rect){
     const ch=y1-y0+1,cw=x1-x0+1;
     if(ch>maxH||(cw>(w-2*edge)*.6&&ch<=3)||((x0<=edge||x1>=w-1-edge)&&sat/cnt>45))drop[n]=1;}
   for(let p=0;p<N;p++)if(mask[p]&&drop[lab[p]]){mask[p]=0;d[p*4]=d[p*4+1]=d[p*4+2]=255;}
-  cx.putImageData(img,0,0);
+  // mask는 줄 위치 분석에만 사용한다. 판독용 canvas의 원본 픽셀은 지우지 않는다.
   const row=new Array(h).fill(0),lx=new Array(h).fill(w),rx=new Array(h).fill(-1);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(mask[y*w+x]){row[y]++;lx[y]=Math.min(lx[y],x);rx[y]=Math.max(rx[y],x);}
   const bands=[];let s=-1;
@@ -1081,7 +1224,6 @@ function splitLines(image,rect){
     lines.push({t:q.t,b:q.b,l:L,r:R,h:hh});}
   return {lines,canvas:c,data:d,mask,w,h};
 }
-function glyphRuns(cell,ln){const runs=[];let s=-1;for(let x=ln.l;x<=ln.r+1;x++){let on=false;if(x<=ln.r)for(let y=ln.t;y<=ln.b&&!on;y++)on=!!cell.mask[y*cell.w+x];if(on&&s<0)s=x;if(!on&&s>=0){runs.push([s,x-1]);s=-1;}}return runs;}
 function isRedLine(cell,ln){let ink=0,red=0;for(let y=ln.t;y<=ln.b;y++)for(let x=ln.l;x<=ln.r;x++){const p=y*cell.w+x;if(!cell.mask[p])continue;ink++;const i=p*4;if(cell.data[i]>140&&cell.data[i+1]<100&&cell.data[i+2]<100)red++;}return ink>0&&red/ink>.35;}
 function glyphPitch(image,red){return (red?21.4:18.0)*image.naturalWidth/2416;}   // 원본 기준 한글 한 글자 폭
 // 줄(또는 일부 구간)을 확대·흰 여백을 둔 판독용 이미지로
@@ -1093,96 +1235,100 @@ function lineImage(cell,ln,x0,x1,scale){const P=20,a=Math.max(0,x0-2),b=Math.min
   for(let i=0;i<q.length;i+=4){let l=.3*q[i]+.59*q[i+1]+.11*q[i+2];if(q[i]>150&&q[i+1]<90&&q[i+2]<90)l=Math.min(l,60);const v=l>200?255:l<90?0:Math.round((l-90)*255/110);q[i]=q[i+1]=q[i+2]=v;}
   cx.putImageData(id,0,0);return {canvas:c,origin:a,scale,pad:P};}
 
-// ── 5) 사전 교정: 글자 수가 같고 모양이 닮은 차이만 ──
-const LOOK_ALIKE=[['ㅐ','ㅔ'],['ㅓ','ㅏ'],['ㅗ','ㅜ'],['ㅡ','ㅜ'],['ㅕ','ㅓ'],['ㅎ','ㅇ'],['ㄲ','ㄱ'],['ㅉ','ㅈ'],['ㅃ','ㅂ'],['ㅆ','ㅅ'],['ㄸ','ㄷ'],['ㅁ','ㅇ'],['ㄹ','ㄷ'],['ㄱ','ㅋ'],['ㅈ','ㅊ'],['ㅂ','ㅁ'],['ㅠ','ㅜ'],['ㅠ','ㅡ'],['ㅓ','ㅗ'],
-  // 이번 실측에서 기본 모델이 실제로 헷갈린 쌍
-  ['ㅉ','ㄲ'],['ㅆ','ㅉ'],['ㅗ','ㅡ'],['ㅅ','ㅊ'],['ㄴ','ㄷ']];
-const LOOK_ALIKE_FINAL=[['ㅁ','ㄱ'],['ㅇ','ㅁ']];
-const SYMBOL_ALIKE={'8':'&','『':'F','5':'S','$':'S','」':'F','|':'/','l':'/','1':'/'};
-const JAMO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
-function jamoOf(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return [ch];return [Math.floor(c/588),Math.floor(c%588/28)+19,c%28?c%28+40:-1].filter(v=>v!==-1);}
-function charCost(a,b){if(a===b)return 0;if(a==='?'||b==='?')return .35;if(SYMBOL_ALIKE[a]===b||SYMBOL_ALIKE[b]===a)return .1;
-  const ja=jamoOf(a),jb=jamoOf(b);if(ja.length===1||jb.length===1)return 1;
-  const FIN=' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ',nm=v=>v<40?JAMO[v]:FIN[v-40],pair=(L,x,y)=>L.some(([p,q])=>(nm(x)===p&&nm(y)===q)||(nm(x)===q&&nm(y)===p)),look=(x,y)=>x>=40&&y>=40?pair(LOOK_ALIKE.concat(LOOK_ALIKE_FINAL),x,y):pair(LOOK_ALIKE,x,y);
-  let diff=0;for(let i=0;i<Math.max(ja.length,jb.length);i++)if(ja[i]!==jb[i])diff+=(ja[i]===undefined||jb[i]===undefined)?.6:look(ja[i],jb[i])?.4:1;
-  return Math.min(1,diff/3);}
-function sameLengthCost(a,b){const A=[...a],B=[...b];if(A.length!==B.length)return null;let tot=0,strong=0,max=0;for(let i=0;i<A.length;i++){const c=charCost(A[i],B[i]);tot+=c;max=Math.max(max,c);if(c>.3)strong++;}return {d:tot/A.length,strong,max};}
-function bestMenu(t,pool){let best=null,second=null;for(const w of pool){const r=sameLengthCost(t,w);if(!r)continue;if(!best||r.d<best.d){second=best;best={w,...r};}else if(!second||r.d<second.d)second={w,...r};}
-  if(!best)return null;if(best.d===0)return best.w;const lim=[...t].length<=5?1:2,margin=second?second.d-best.d:1;
-  const maxOk=[...t].length<=3?best.max<=.25:best.max<=.5;
-  return best.d<=.22&&maxOk&&best.strong<=lim&&margin>=.08?best.w:null;}
-function correctLine(text,dict,parts){const w=bestMenu(text,dict);if(w)return {text:w,how:w===text?'':'사전'};
-  if(/[\/&]/.test(text)){let changed=false;const seg=text.split(/([\/&])/).map(p=>{if(p==='/'||p==='&'||p.length<2)return p;const b=bestMenu(p,parts);if(b&&b!==p){changed=true;return b;}return p;});if(changed)return {text:seg.join(''),how:'사전(부분)'};}
-  return {text,how:''};}
-function cleanSymbols(t){return t.replace(/8[,.(:;]+(?=[가-힣])/g,'&').replace(/([가-힣])5$/,'$1S').replace(/[^가-힣A-Za-z0-9&/"'?]/g,'');}
-// 모자란 글자 칸을 한 글자 판독 결과로 채움(짧은 판독과 칸 판독을 가장 잘 맞는 위치로 맞춤)
-function fillByAlignment(short,slots){const S=[...short],L=[...slots],k=L.length-S.length;if(k<=0||k>3)return short;let best=null;
-  const pick=(start,left,gaps)=>{if(!left){let j=0,cost=0;const out=[];for(let i=0;i<L.length;i++){if(gaps.includes(i))out.push(L[i]);else{cost+=charCost(S[j],L[i]);out.push(S[j++]);}}if(!best||cost<best.cost)best={cost,out};return;}for(let i=start;i<L.length;i++)pick(i+1,left-1,gaps.concat(i));};
-  pick(0,k,[]);return best.out.join('');}
-
-// ── 2)~4) 줄 판독 ──
-async function readTailLetter(cell,ln,pitch,dict,text){
-  const runs=glyphRuns(cell,ln);if(runs.length<2)return null;let [a,b]=runs[runs.length-1];const wid=b-a+1,touching=wid>=pitch*1.25&&wid<=pitch*1.8;
-  if(touching)a=b-Math.round(pitch*.5);else if(wid>pitch*.75||wid<pitch*.2)return null;
-  const eng=await getExtraWorker('eng');if(!eng)return null;
-  const q=await tryRead(eng,'eng',lineImage(cell,ln,a,b,6).canvas,'10');if(!q)return null;const ch=(q.data.text||'').trim();
-  if(!/^[A-Z]$/.test(ch)||q.data.confidence<80)return null;
-  if(touching&&!dict.some(w=>w.endsWith(text.replace(/[^가-힣]+$/,'').slice(-1)+ch)))return null;   // 붙어 있는 글자는 사전 근거가 있을 때만
-  return {ch,x0:a};}
-async function readMenuLine(main,cell,ln,image,dict,parts){
-  const red=isRedLine(cell,ln),pitch=glyphPitch(image,red),steps=[];
-  const li=lineImage(cell,ln,ln.l,ln.r,3),res=await readText(main,'main',li.canvas,'7',true);
-  const syms=[];for(const b of res.data.blocks||[])for(const p of b.paragraphs||[])for(const l of p.lines||[])for(const wd of l.words||[])for(const s of wd.symbols||[])if(s.text.trim())syms.push(s);
-  const raw=syms.map(s=>s.text).join('');let text=raw;
-  const tail=syms.length?await readTailLetter(cell,ln,pitch,dict,text):null;
-  if(tail){text=text.replace(/[^가-힣]+$/,'');steps.push('끝 영문:'+tail.ch);}
-  const right=tail?tail.x0-1:ln.r,count=Math.round((right-ln.l+1)/pitch);
-  if(/^[가-힣]*$/.test(text)&&count>text.length&&count-text.length<=2&&!dict.includes(text)&&!parts.includes(text)){
-    let hw=await getExtraWorker('Hangul');
-    if(hw){const q=await tryRead(hw,'Hangul',lineImage(cell,ln,ln.l,right-1,4).canvas,'7');if(!q)hw=null;const t=((q&&q.data.text)||'').replace(/[^가-힣]/g,'');if([...t].length===count){text=t;steps.push('한글 모델:'+t);}}
-    if([...text].length<count){const W=(right-ln.l+1)/count;let slots='';
-      for(let i=0;i<count;i++){const c=lineImage(cell,ln,Math.round(ln.l+i*W),Math.round(ln.l+(i+1)*W)-1,6).canvas;let ch='';
-        if(hw){const q=await tryRead(hw,'Hangul',c,'10');if(!q)hw=null;else ch=(q.data.text||'').replace(/[^가-힣]/g,'')[0]||'';}
-        if(!ch){const q=await readText(main,'main',c,'10');ch=(q.data.text||'').replace(/[^가-힣]/g,'')[0]||'';}
-        slots+=ch||'?';}
-      text=fillByAlignment(text,slots);steps.push('한 글자씩:'+slots);}
+// 경량 판독: 기본 kor 엔진만 사용. 오타 교정·영문 보완·글자별 판독 없음.
+function menuText(text){return String(text||'').replace(/[A-Za-z]/g,'').replace(/[^가-힣0-9&/]/g,'');}
+async function readMenuLine(main,cell,ln,image){
+  const title=isRedLine(cell,ln),pitch=glyphPitch(image,title),steps=[];
+  const first=await recognizeOCR(main,lineImage(cell,ln,ln.l,ln.r,3).canvas);
+  const raw=first.data.text||'';let text=menuText(raw);
+  // 영문 제거로 줄어든 길이는 누락으로 취급하지 않는다. 숫자·기호 혼합 줄은 폭 추정에서 제외한다.
+  const full=raw.replace(/\s/g,'');
+  const count=Math.round((ln.r-ln.l+1)/pitch);
+  if(/^[가-힣]+$/.test(full)&&count>text.length&&count-text.length<=2){
+    try{
+      const second=await recognizeOCR(main,lineImage(cell,ln,ln.l,ln.r,5).canvas);
+      const candidate=menuText(second.data.text);
+      if(candidate.length>text.length&&candidate.length<=count){text=candidate;steps.push('같은 엔진 줄 재판독');}
+    }catch(e){steps.push('재판독 실패: 첫 결과 유지');}
   }
-  if(tail)text=text.replace(/[^가-힣0-9]+$/,'')+tail.ch;else if(/[^가-힣0-9A-Za-z&/]$/.test(text))text=text.slice(0,-1);
-  text=cleanSymbols(text).replace(/\?/g,'');
-  const fixed=correctLine(text,dict,parts);if(fixed.how)steps.push(fixed.how+':'+fixed.text);
-  return {text:fixed.text,title:red,raw,steps};
+  return {text,title,raw,steps};
 }
 async function ocrCell(day,meal,context={image:img,grid,noticeId:notice&&notice.boardIdx}){
   if(!context.grid||!context.grid.valid)throw new Error('표 검증 실패');
   const started=performance.now(),rect=cellRect(day,meal,context.grid),cell=splitLines(context.image,rect),main=await getWorker();
-  const dict=menuDictionary(),parts=menuParts(dict),lines=[],failures=[];
+  const lines=[],failures=[];
   let w=main;
-  try{for(const ln of cell.lines){let r=null;for(let attempt=0;attempt<2&&!r;attempt++){try{r=await readMenuLine(w,cell,ln,context.image,dict,parts);}catch(e){if(attempt===0){w=await getWorker();}else failures.push({type:'line-error',message:e.message});}}
+  try{await setOCRParameters(w,{tessedit_pageseg_mode:'7'});
+    for(const ln of cell.lines){let r=null;
+      try{const current=await getWorker();if(current!==w){w=current;await setOCRParameters(w,{tessedit_pageseg_mode:'7'});}r=await readMenuLine(w,cell,ln,context.image);}catch(e){failures.push({type:'line-error',message:e.message});break;}
       if(r){if(r.text)lines.push(r);else failures.push({type:'empty-line'});}}
     if(!cell.lines.length&&cell.mask.some(v=>v))failures.push({type:'no-lines'});}
   finally{await setOCRParameters(w,{tessedit_pageseg_mode:'6'}).catch(()=>{});}
-  return {lines,failures,status:!cell.lines.length?'empty':'ok',rect,elapsedMs:Math.round(performance.now()-started),engine:'v1.7'};
+  return {lines,failures,status:!cell.lines.length?'empty':'ok',rect,elapsedMs:Math.round(performance.now()-started),engine:'v1.11-lite'};
+}
+
+// 날짜는 메뉴 표시를 막지 않는 후순위 진단이다. 같은 worker를 병렬 사용하지 않는다.
+let foregroundOCR=0,dateAuditJob=null,backgroundDateOCR=false;
+function dateJobIsCurrent(job){return job.sequence===showSequence&&notice&&notice.boardIdx===job.noticeId&&img===job.image&&grid===job.grid;}
+function publishDateAudit(job){if(dateJobIsCurrent(job)&&window.mealDiagnostics&&window.mealDiagnostics.notice===job.noticeId)window.mealDiagnostics.dateAudit={status:job.status,results:job.results.slice(),passed:job.results.filter(r=>r.ok).length,total:7};}
+function scheduleDateAuditTick(job,delay=0){
+  if(job.timer||!dateJobIsCurrent(job)||job.index>=7)return;
+  job.timer=setTimeout(()=>{
+    job.timer=null;if(!dateJobIsCurrent(job))return;
+    if(foregroundOCR>0){scheduleDateAuditTick(job,50);return;}
+    const task=ocrChain.catch(()=>{}).then(async()=>{
+      if(!dateJobIsCurrent(job))return;
+      if(foregroundOCR>0){scheduleDateAuditTick(job,50);return;}
+      job.status='running';publishDateAudit(job);backgroundDateOCR=true;const i=job.index,dt=new Date(job.weekStart);dt.setDate(dt.getDate()+i);
+      const expected=String(dt.getMonth()+1)+'월'+dt.getDate()+'일';let worker=null,result;
+      try{
+        worker=await getWorker();await setOCRParameters(worker,{tessedit_pageseg_mode:'7'});
+        const g=job.grid,c=labelCanvas(job.image,{x:g.cols[i][1]+2,y:g.header[0],w:g.cols[i+1][0]-g.cols[i][1]-4,h:g.header[1]-g.header[0]+1},true);
+        result=c?await readCheckedLabel(worker,c,[expected]):{ok:false,expected:[expected],attempts:[],error:'날짜 글자를 찾지 못했습니다.'};
+      }catch(e){result={ok:false,...(e.ocrAudit||{expected:[expected],attempts:[]}),error:e.message};}
+      finally{if(worker)await setOCRParameters(worker,{tessedit_pageseg_mode:'6'}).catch(()=>{});backgroundDateOCR=false;}
+      if(!dateJobIsCurrent(job))return;
+      job.results.push({day:i,weekday:DOW[i],...result});job.index++;
+      job.status=job.index===7?'complete':'pending';publishDateAudit(job);if(job.index<7)scheduleDateAuditTick(job);
+    });
+    ocrChain=task.catch(()=>{});
+  },delay);
+}
+function scheduleDateAudit(context){
+  if(context.sequence!==showSequence||!notice||notice.boardIdx!==context.noticeId||img!==context.image||grid!==context.grid)return;
+  if(dateAuditJob&&dateAuditJob.sequence===context.sequence&&dateAuditJob.noticeId===context.noticeId)return;
+  const ws=context.weekStart&&new Date(context.weekStart);
+  if(!ws||!Number.isFinite(ws.getTime())){if(window.mealDiagnostics)window.mealDiagnostics.dateAudit={status:'skipped',reason:'공지 시작 날짜 없음',results:[]};return;}
+  if(dateAuditJob&&dateAuditJob.timer)clearTimeout(dateAuditJob.timer);
+  dateAuditJob={...context,weekStart:ws,index:0,results:[],status:'pending',timer:null};publishDateAudit(dateAuditJob);const job=dateAuditJob;requestAnimationFrame(()=>requestAnimationFrame(()=>scheduleDateAuditTick(job)));
 }
 
 function showText(){
-  const box=$('menu'),my=++runId,context={image:img,grid,noticeId:notice.boardIdx};
+  const box=$('menu'),my=++runId,context={image:img,grid,noticeId:notice.boardIdx,sequence:showSequence,weekStart:notice.weekStart};
   const key=context.noticeId+'|'+state.day+'|'+state.meal;
   const paint=result=>{
     if(my!==runId||showImg)return;
-    box.innerHTML='';
-    $('ocrNote').textContent=result.failures&&result.failures.length?'일부 메뉴를 끝까지 판독하지 못했어요. 아래 원본 대조를 확인해 주세요.':'텍스트 인식 결과로 일부 오차가 있을 수 있습니다.';
-    if(!result.lines.length){const e=document.createElement('div');e.className='empty';e.textContent=result.status==='empty'&&!result.failures.length?'등록된 메뉴가 없는 빈 칸입니다.':'식단 텍스트를 판독하지 못했습니다. 아래 원본 대조를 확인해 주세요.';box.appendChild(e);}
+    box.innerHTML='';const empty=!result.lines.length;
+    const unavailable=empty&&!(result.status==='empty'&&!(result.failures||[]).length);
+    $('ocrNote').textContent=unavailable?'메뉴 표시를 완료하지 못했습니다.':'텍스트 인식 결과로 일부 오차가 있을 수 있습니다.';
+    if(empty){const e=document.createElement('div');e.className='empty';e.textContent=unavailable?'식단 텍스트를 판독하지 못했습니다. 아래 원본 보기를 이용해 주세요.':'등록된 메뉴가 없는 빈 칸입니다.';box.appendChild(e);}
     result.lines.forEach(l=>{const d=document.createElement('div');d.className=l.title?'t':'l';d.textContent=l.text;d.title='OCR 원문: '+l.raw+(l.steps.length?' / '+l.steps.join(', '):'');box.appendChild(d);});
+    if(unavailable)for(const f of result.failures||[]){const e=document.createElement('div');e.className='empty';e.textContent='실패 내용: '+(f.message||({'empty-line':'메뉴 줄에서 글자를 읽지 못했습니다.','no-lines':'메뉴 줄을 나누지 못했습니다.'}[f.type])||f.type);box.appendChild(e);}
     if(window.mealDiagnostics&&window.mealDiagnostics.notice===context.noticeId)window.mealDiagnostics.ocr[key]=result;
+    // paint 뒤 새 macrotask에서 날짜 진단을 시작한다. 부분 메뉴가 보이면 실패 경고를 덧붙이지 않는다.
+    if(!unavailable)scheduleDateAudit(context);
   };
   if(ocrCache.has(key)){paint(ocrCache.get(key));return;}
   box.innerHTML='<div class="empty">메뉴 불러오는 중…</div>';
-  const d=state.day,m=state.meal;
+  const d=state.day,m=state.meal;foregroundOCR++;
   ocrChain=ocrChain.catch(()=>{}).then(async()=>{
-    if(my!==runId)return;
-    if(ocrCache.has(key))return paint(ocrCache.get(key));
-    try{const result=await ocrCell(d,m,context);if(!result.failures.some(f=>f.type==='line-error'))ocrCache.set(key,result);paint(result);}
-    catch(e){if(my!==runId||showImg)return;box.innerHTML='<div class="empty">판독 확인 필요: 텍스트를 불러오지 못했습니다. 아래 원본 보기를 이용해 주세요.</div>';}
+    try{
+      if(my!==runId)return;
+      if(ocrCache.has(key)){paint(ocrCache.get(key));return;}
+      const result=await ocrCell(d,m,context);if(!result.failures.some(f=>f.type==='line-error'))ocrCache.set(key,result);paint(result);
+    }catch(e){if(my!==runId||showImg)return;box.innerHTML='';const message=document.createElement('div');message.className='empty';message.textContent='판독 확인 필요: '+(e.message||'텍스트를 불러오지 못했습니다.')+' · 아래 원본 보기를 이용해 주세요.';box.appendChild(message);$('ocrNote').textContent='메뉴 표시를 완료하지 못했습니다.';
+      if(window.mealDiagnostics&&window.mealDiagnostics.notice===context.noticeId)window.mealDiagnostics.ocr[key]={status:'failed',lines:[],failures:[{type:'exception',message:e.message}]};
+    }finally{foregroundOCR=Math.max(0,foregroundOCR-1);}
   });
 }
 
