@@ -750,7 +750,7 @@ async function show(n){
   let checked;try{checked=await job;}catch(e){checked={detected:false,valid:false,reason:'표 검증을 완료하지 못했습니다. 원본을 확인해 주세요.'};}
   if(my!==showSequence)return;
   img=nextImage;grid=checked;ocrCache.clear();
-  window.mealDiagnostics={version:'1.6',notice:n.boardIdx,image:{width:img.naturalWidth,height:img.naturalHeight},grid:checked,ocr:{}};
+  window.mealDiagnostics={version:'1.7',notice:n.boardIdx,image:{width:img.naturalWidth,height:img.naturalHeight},grid:checked,ocr:{}};
   notice = n;
   notice.weekStart = weekStartOf(n);
   try{ localStorage.setItem('mealIdx', n.boardIdx); }catch(e){}
@@ -923,10 +923,20 @@ function render(){
   if (!showImg) showText(); else ++runId;
 }
 
-/* OCR */
-const ocrCache = new Map();
-let workerP = null, runId = 0, ocrChain = Promise.resolve();
-
+/* ───────── OCR v1.7: 원본 줄 단위 판독 ─────────
+   1) 검증된 칸 안에서 장식 그림을 빼고 글자 줄을 나눈다
+   2) 줄마다 기본 한국어 모델로 읽는다
+   3) 원본 글자 폭으로 센 글자 수보다 모자라면 한글 전용 모델, 그다음 한 글자씩 읽어 비슷한 글자로 채운다
+   4) 맨 끝의 좁은 글자(F·S 등)는 영문 모델로 따로 확인한다
+   5) 모양이 닮은 글자 차이만 메뉴 사전으로 교정한다 (글자 수가 같은 후보만) */
+const ocrCache=new Map();let workerP=null,runId=0,ocrChain=Promise.resolve();
+const extraWorkers=new Map(),extraFailedUntil=new Map();
+function terminateOCRWorker(w){try{return Promise.resolve(w.terminate()).catch(()=>{});}catch(e){return Promise.resolve();}}
+function withOCRDeadline(task,ms,onTimeout){return new Promise((resolve,reject)=>{let done=false;const t=setTimeout(()=>{if(done)return;done=true;try{onTimeout&&onTimeout();}catch(e){}reject(new Error('OCR 시간 초과'));},ms);
+  Promise.resolve(task).then(v=>{if(done)return;done=true;clearTimeout(t);resolve(v);},e=>{if(done)return;done=true;clearTimeout(t);reject(e);});});}
+function invalidateOCRWorker(kind,w){if(kind==='main'){if(!w||!workerP||workerP.__w===w)workerP=null;}else{extraWorkers.delete(kind);extraFailedUntil.set(kind,Date.now()+60000);}if(w)terminateOCRWorker(w);}
+async function setOCRParameters(w,params,kind='main'){try{return await withOCRDeadline(w.setParameters(params),5000,()=>invalidateOCRWorker(kind,w));}catch(e){invalidateOCRWorker(kind,w);throw e;}}
+async function recognizeOCR(w,image,output,kind='main'){try{return await withOCRDeadline(w.recognize(image,{},output),15000,()=>invalidateOCRWorker(kind,w));}catch(e){invalidateOCRWorker(kind,w);throw e;}}
 function getWorker(){
   if(!workerP){
     let made=null,abandoned=false;
@@ -937,18 +947,24 @@ function getWorker(){
     }});
     const setup=creation.then(async w=>{made=w;if(abandoned){await terminateOCRWorker(w);throw new Error('OCR 준비 시간 초과');}await setOCRParameters(w,{tessedit_pageseg_mode:'6',preserve_interword_spaces:'0'},'main');return w;});
     const promise=withOCRDeadline(setup,20000,()=>{abandoned=true;if(made)invalidateOCRWorker('main',made);else creation.then(w=>terminateOCRWorker(w)).catch(()=>{});});
-    workerP=promise;promise.catch(()=>{if(workerP===promise)workerP=null;});
+    workerP=promise;promise.then(w=>{promise.__w=w;}).catch(()=>{});promise.catch(()=>{if(workerP===promise)workerP=null;});
   }
   return workerP;
 }
 
-function isRedLine(colorCanvas, b){
-  const c = colorCanvas.getContext('2d');
-  const x=Math.max(0,b.x0), y=Math.max(0,b.y0), w=Math.max(1,Math.min(colorCanvas.width,b.x1)-x), h=Math.max(1,Math.min(colorCanvas.height,b.y1)-y);
-  const d = c.getImageData(x,y,w,h).data; let dark=0, red=0;
-  for (let i=0;i<d.length;i+=4){ if (Math.min(d[i],d[i+1],d[i+2]) < 110){ dark++; if (d[i]-d[i+1] > 70 && d[i]-d[i+2] > 70) red++; } }
-  return dark > 8 && red/dark > 0.5;
+
+// 보조 모델: 한글 전용(정확도 우선, 최초 1회 약 12MB 내려받음)·영문. 실패하면 기본 모델만으로 계속한다
+function getExtraWorker(kind){
+  if((extraFailedUntil.get(kind)||0)>Date.now())return Promise.resolve(null);
+  if(!extraWorkers.has(kind)){
+    const opt=kind==='Hangul'?{langPath:'https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/refs/heads/main/script',gzip:false,cachePath:'meal-ocr17-Hangul'}:{cachePath:'meal-ocr17-eng'};
+    let made=null;const creation=Tesseract.createWorker(kind,1,opt).then(w=>{made=w;return w;});
+    extraWorkers.set(kind,withOCRDeadline(creation,30000,()=>{if(made)terminateOCRWorker(made);else creation.then(terminateOCRWorker).catch(()=>{});}).catch(()=>{invalidateOCRWorker(kind,made);return null;}));
+  }
+  return extraWorkers.get(kind);
 }
+async function tryRead(w,kind,canvas,psm){try{return await readText(w,kind,canvas,psm);}catch(e){return null;}}
+async function readText(w,kind,canvas,psm,blocks){await setOCRParameters(w,{tessedit_pageseg_mode:psm},kind);return recognizeOCR(w,canvas,blocks?{blocks:true}:undefined,kind);}
 
 const DICT_RAW = ['쌀밥','현미밥','흑미밥','잡곡밥','추가밥','미역국','소고기미역국','배추김치','깍두기','총각김치','배추겉절이','부추겉절이',
   '셀프라면9종','셀프계란F','시리얼&빵&잼','그린샐러드','우유','초코우유','요구르트','사과주스','야채계란찜','열무고추장무침',
@@ -973,286 +989,120 @@ const DICT = [...new Set(DICT_RAW.filter(w => !['셌프계란F','셌프라면9�
   // '/'로 묶여 한 줄에 나오는 조합은 줄 전체로 맞춘다
   '쌀밥/현미밥','추가밥/계란국','그린샐러드/우유/김/계란F','석류에이드/숭늉','쌀음료/숭늉','ABC주스/숭늉']))];
 
-const jamo = s => [...s].map(ch => { const c = ch.charCodeAt(0) - 0xAC00; if (c < 0 || c > 11171) return ch;
-  return String.fromCharCode(0x1100 + Math.floor(c/588)) + String.fromCharCode(0x1161 + Math.floor(c%588/28)) + (c%28 ? String.fromCharCode(0x11A7 + c%28) : ''); }).join('');
 
-/* 비슷하게 생겨 OCR이 자주 헷갈리는 자모 쌍 (거리 0.5로 계산) */
-const CONF = (() => {
-  const L = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', V = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ', T = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
-  const pairs = ['ㅐㅔ','ㅔㅖ','ㅐㅖ','ㅐㅒ','ㅗㅜ','ㅜㅡ','ㅗㅡ','ㅜㅠ','ㅓㅕ','ㅏㅑ','ㅇㅎ','ㄹㅌ','ㅁㅂ','ㅈㅊ','ㄱㄲ','ㄷㄸ','ㅂㅃ','ㅅㅆ','ㅈㅉ','ㄴㄹ','ㄹㅁ','ㄷㅌ','ㄱㅋ','ㅍㅌ'];
-  const s = new Set(), add = (x, y) => { s.add(x+y); s.add(y+x); };
-  for (const [a, b] of pairs){
-    if (V.includes(a)){ add(String.fromCharCode(0x1161 + V.indexOf(a)), String.fromCharCode(0x1161 + V.indexOf(b))); continue; }
-    add(String.fromCharCode(0x1100 + L.indexOf(a)), String.fromCharCode(0x1100 + L.indexOf(b)));
-    if (T.indexOf(a) > 0 && T.indexOf(b) > 0) add(String.fromCharCode(0x11A7 + T.indexOf(a)), String.fromCharCode(0x11A7 + T.indexOf(b)));
+// 메뉴 사전: 기존 메뉴 + 지금까지 저장한 새 메뉴
+function menuDictionary(){return DICT;}
+function menuParts(dict){const s=new Set();for(const w of dict){s.add(w);for(const p of w.split(/[\/&]/))if(p.length>=2)s.add(p);}return [...s];}
+
+// ── 1) 줄 나누기 ──
+function isInk(d,i){const r=d[i],g=d[i+1],b=d[i+2];return .3*r+.59*g+.11*b<165||(r>150&&g<90&&b<90);}
+function splitLines(image,rect){
+  const w=Math.round(rect.w),h=Math.round(rect.h),c=document.createElement('canvas');c.width=w;c.height=h;
+  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,w,h);
+  const img=cx.getImageData(0,0,w,h),d=img.data,N=w*h,mask=new Uint8Array(N);
+  for(let p=0;p<N;p++)if(isInk(d,p*4))mask[p]=1;
+  // 글자보다 큰 그림, 가장자리의 색 장식, 칸 안 구분선은 지운다
+  const maxH=image.naturalWidth/2416*19*1.7,edge=Math.max(2,Math.round(w*.012)),lab=new Int32Array(N),stack=new Int32Array(N),drop=[];let n=0;
+  for(let p=0;p<N;p++){if(!mask[p]||lab[p])continue;n++;let sp=0;stack[sp++]=p;lab[p]=n;let x0=w,x1=-1,y0=h,y1=-1,cnt=0,sat=0;
+    while(sp){const q=stack[--sp],x=q%w,y=(q-x)/w,i=q*4;cnt++;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);sat+=Math.max(d[i],d[i+1],d[i+2])-Math.min(d[i],d[i+1],d[i+2]);
+      if(x>0&&mask[q-1]&&!lab[q-1]){lab[q-1]=n;stack[sp++]=q-1;}if(x<w-1&&mask[q+1]&&!lab[q+1]){lab[q+1]=n;stack[sp++]=q+1;}
+      if(y>0&&mask[q-w]&&!lab[q-w]){lab[q-w]=n;stack[sp++]=q-w;}if(y<h-1&&mask[q+w]&&!lab[q+w]){lab[q+w]=n;stack[sp++]=q+w;}}
+    const ch=y1-y0+1,cw=x1-x0+1;
+    if(ch>maxH||(cw>(w-2*edge)*.6&&ch<=3)||((x0<=edge||x1>=w-1-edge)&&sat/cnt>45))drop[n]=1;}
+  for(let p=0;p<N;p++)if(mask[p]&&drop[lab[p]]){mask[p]=0;d[p*4]=d[p*4+1]=d[p*4+2]=255;}
+  cx.putImageData(img,0,0);
+  const row=new Array(h).fill(0),lx=new Array(h).fill(w),rx=new Array(h).fill(-1);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(mask[y*w+x]){row[y]++;lx[y]=Math.min(lx[y],x);rx[y]=Math.max(rx[y],x);}
+  const bands=[];let s=-1;
+  for(let y=0;y<=h;y++){const on=y<h&&row[y]>=1;if(on&&s<0)s=y;if(!on&&s>=0){const p=bands[bands.length-1];if(p&&s-p.b<=2)p.b=y-1;else bands.push({t:s,b:y-1});s=-1;}}
+  const hs=bands.map(q=>q.b-q.t+1).sort((a,b)=>a-b),med=hs.length?hs[Math.floor(hs.length/2)]:10,lines=[];
+  for(const q of bands){const hh=q.b-q.t+1;if(hh<med*.45)continue;let L=w,R=-1,ink=0;for(let y=q.t;y<=q.b;y++){L=Math.min(L,lx[y]);R=Math.max(R,rx[y]);ink+=row[y];}
+    if(R-L<hh*.6||ink<hh*2||Math.abs((L+R)/2-w/2)>w*.22)continue;   // 가운데 정렬이 아닌 로고·장식 줄 제외
+    lines.push({t:q.t,b:q.b,l:L,r:R,h:hh});}
+  return {lines,canvas:c,data:d,mask,w,h};
+}
+function glyphRuns(cell,ln){const runs=[];let s=-1;for(let x=ln.l;x<=ln.r+1;x++){let on=false;if(x<=ln.r)for(let y=ln.t;y<=ln.b&&!on;y++)on=!!cell.mask[y*cell.w+x];if(on&&s<0)s=x;if(!on&&s>=0){runs.push([s,x-1]);s=-1;}}return runs;}
+function isRedLine(cell,ln){let ink=0,red=0;for(let y=ln.t;y<=ln.b;y++)for(let x=ln.l;x<=ln.r;x++){const p=y*cell.w+x;if(!cell.mask[p])continue;ink++;const i=p*4;if(cell.data[i]>140&&cell.data[i+1]<100&&cell.data[i+2]<100)red++;}return ink>0&&red/ink>.35;}
+function glyphPitch(image,red){return (red?21.4:18.0)*image.naturalWidth/2416;}   // 원본 기준 한글 한 글자 폭
+// 줄(또는 일부 구간)을 확대·흰 여백을 둔 판독용 이미지로
+function lineImage(cell,ln,x0,x1,scale){const P=20,a=Math.max(0,x0-2),b=Math.min(cell.w-1,x1+2),t=Math.max(0,ln.t-2),bt=Math.min(cell.h-1,ln.b+2);
+  const c=document.createElement('canvas');c.width=Math.round((b-a+1)*scale)+2*P;c.height=Math.round((bt-t+1)*scale)+2*P;
+  const cx=c.getContext('2d',{willReadFrequently:true});cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';
+  cx.drawImage(cell.canvas,a,t,b-a+1,bt-t+1,P,P,c.width-2*P,c.height-2*P);
+  const id=cx.getImageData(0,0,c.width,c.height),q=id.data;
+  for(let i=0;i<q.length;i+=4){let l=.3*q[i]+.59*q[i+1]+.11*q[i+2];if(q[i]>150&&q[i+1]<90&&q[i+2]<90)l=Math.min(l,60);const v=l>200?255:l<90?0:Math.round((l-90)*255/110);q[i]=q[i+1]=q[i+2]=v;}
+  cx.putImageData(id,0,0);return {canvas:c,origin:a,scale,pad:P};}
+
+// ── 5) 사전 교정: 글자 수가 같고 모양이 닮은 차이만 ──
+const LOOK_ALIKE=[['ㅐ','ㅔ'],['ㅓ','ㅏ'],['ㅗ','ㅜ'],['ㅡ','ㅜ'],['ㅕ','ㅓ'],['ㅎ','ㅇ'],['ㄲ','ㄱ'],['ㅉ','ㅈ'],['ㅃ','ㅂ'],['ㅆ','ㅅ'],['ㄸ','ㄷ'],['ㅁ','ㅇ'],['ㄹ','ㄷ'],['ㄱ','ㅋ'],['ㅈ','ㅊ'],['ㅂ','ㅁ'],['ㅠ','ㅜ'],['ㅠ','ㅡ'],['ㅓ','ㅗ'],
+  // 이번 실측에서 기본 모델이 실제로 헷갈린 쌍
+  ['ㅉ','ㄲ'],['ㅆ','ㅉ'],['ㅗ','ㅡ'],['ㅅ','ㅊ'],['ㄴ','ㄷ']];
+const LOOK_ALIKE_FINAL=[['ㅁ','ㄱ'],['ㅇ','ㅁ']];
+const SYMBOL_ALIKE={'8':'&','『':'F','5':'S','$':'S','」':'F','|':'/','l':'/','1':'/'};
+const JAMO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+function jamoOf(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return [ch];return [Math.floor(c/588),Math.floor(c%588/28)+19,c%28?c%28+40:-1].filter(v=>v!==-1);}
+function charCost(a,b){if(a===b)return 0;if(a==='?'||b==='?')return .35;if(SYMBOL_ALIKE[a]===b||SYMBOL_ALIKE[b]===a)return .1;
+  const ja=jamoOf(a),jb=jamoOf(b);if(ja.length===1||jb.length===1)return 1;
+  const FIN=' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ',nm=v=>v<40?JAMO[v]:FIN[v-40],pair=(L,x,y)=>L.some(([p,q])=>(nm(x)===p&&nm(y)===q)||(nm(x)===q&&nm(y)===p)),look=(x,y)=>x>=40&&y>=40?pair(LOOK_ALIKE.concat(LOOK_ALIKE_FINAL),x,y):pair(LOOK_ALIKE,x,y);
+  let diff=0;for(let i=0;i<Math.max(ja.length,jb.length);i++)if(ja[i]!==jb[i])diff+=(ja[i]===undefined||jb[i]===undefined)?.6:look(ja[i],jb[i])?.4:1;
+  return Math.min(1,diff/3);}
+function sameLengthCost(a,b){const A=[...a],B=[...b];if(A.length!==B.length)return null;let tot=0,strong=0,max=0;for(let i=0;i<A.length;i++){const c=charCost(A[i],B[i]);tot+=c;max=Math.max(max,c);if(c>.3)strong++;}return {d:tot/A.length,strong,max};}
+function bestMenu(t,pool){let best=null,second=null;for(const w of pool){const r=sameLengthCost(t,w);if(!r)continue;if(!best||r.d<best.d){second=best;best={w,...r};}else if(!second||r.d<second.d)second={w,...r};}
+  if(!best)return null;if(best.d===0)return best.w;const lim=[...t].length<=5?1:2,margin=second?second.d-best.d:1;
+  const maxOk=[...t].length<=3?best.max<=.25:best.max<=.5;
+  return best.d<=.22&&maxOk&&best.strong<=lim&&margin>=.08?best.w:null;}
+function correctLine(text,dict,parts){const w=bestMenu(text,dict);if(w)return {text:w,how:w===text?'':'사전'};
+  if(/[\/&]/.test(text)){let changed=false;const seg=text.split(/([\/&])/).map(p=>{if(p==='/'||p==='&'||p.length<2)return p;const b=bestMenu(p,parts);if(b&&b!==p){changed=true;return b;}return p;});if(changed)return {text:seg.join(''),how:'사전(부분)'};}
+  return {text,how:''};}
+function cleanSymbols(t){return t.replace(/8[,.(:;]+(?=[가-힣])/g,'&').replace(/([가-힣])5$/,'$1S').replace(/[^가-힣A-Za-z0-9&/"'?]/g,'');}
+// 모자란 글자 칸을 한 글자 판독 결과로 채움(짧은 판독과 칸 판독을 가장 잘 맞는 위치로 맞춤)
+function fillByAlignment(short,slots){const S=[...short],L=[...slots],k=L.length-S.length;if(k<=0||k>3)return short;let best=null;
+  const pick=(start,left,gaps)=>{if(!left){let j=0,cost=0;const out=[];for(let i=0;i<L.length;i++){if(gaps.includes(i))out.push(L[i]);else{cost+=charCost(S[j],L[i]);out.push(S[j++]);}}if(!best||cost<best.cost)best={cost,out};return;}for(let i=start;i<L.length;i++)pick(i+1,left-1,gaps.concat(i));};
+  pick(0,k,[]);return best.out.join('');}
+
+// ── 2)~4) 줄 판독 ──
+async function readTailLetter(cell,ln,pitch,dict,text){
+  const runs=glyphRuns(cell,ln);if(runs.length<2)return null;let [a,b]=runs[runs.length-1];const wid=b-a+1,touching=wid>=pitch*1.25&&wid<=pitch*1.8;
+  if(touching)a=b-Math.round(pitch*.5);else if(wid>pitch*.75||wid<pitch*.2)return null;
+  const eng=await getExtraWorker('eng');if(!eng)return null;
+  const q=await tryRead(eng,'eng',lineImage(cell,ln,a,b,6).canvas,'10');if(!q)return null;const ch=(q.data.text||'').trim();
+  if(!/^[A-Z]$/.test(ch)||q.data.confidence<80)return null;
+  if(touching&&!dict.some(w=>w.endsWith(text.replace(/[^가-힣]+$/,'').slice(-1)+ch)))return null;   // 붙어 있는 글자는 사전 근거가 있을 때만
+  return {ch,x0:a};}
+async function readMenuLine(main,cell,ln,image,dict,parts){
+  const red=isRedLine(cell,ln),pitch=glyphPitch(image,red),steps=[];
+  const li=lineImage(cell,ln,ln.l,ln.r,3),res=await readText(main,'main',li.canvas,'7',true);
+  const syms=[];for(const b of res.data.blocks||[])for(const p of b.paragraphs||[])for(const l of p.lines||[])for(const wd of l.words||[])for(const s of wd.symbols||[])if(s.text.trim())syms.push(s);
+  const raw=syms.map(s=>s.text).join('');let text=raw;
+  const tail=syms.length?await readTailLetter(cell,ln,pitch,dict,text):null;
+  if(tail){text=text.replace(/[^가-힣]+$/,'');steps.push('끝 영문:'+tail.ch);}
+  const right=tail?tail.x0-1:ln.r,count=Math.round((right-ln.l+1)/pitch);
+  if(/^[가-힣]*$/.test(text)&&count>text.length&&count-text.length<=2&&!dict.includes(text)&&!parts.includes(text)){
+    let hw=await getExtraWorker('Hangul');
+    if(hw){const q=await tryRead(hw,'Hangul',lineImage(cell,ln,ln.l,right-1,4).canvas,'7');if(!q)hw=null;const t=((q&&q.data.text)||'').replace(/[^가-힣]/g,'');if([...t].length===count){text=t;steps.push('한글 모델:'+t);}}
+    if([...text].length<count){const W=(right-ln.l+1)/count;let slots='';
+      for(let i=0;i<count;i++){const c=lineImage(cell,ln,Math.round(ln.l+i*W),Math.round(ln.l+(i+1)*W)-1,6).canvas;let ch='';
+        if(hw){const q=await tryRead(hw,'Hangul',c,'10');if(!q)hw=null;else ch=(q.data.text||'').replace(/[^가-힣]/g,'')[0]||'';}
+        if(!ch){const q=await readText(main,'main',c,'10');ch=(q.data.text||'').replace(/[^가-힣]/g,'')[0]||'';}
+        slots+=ch||'?';}
+      text=fillByAlignment(text,slots);steps.push('한 글자씩:'+slots);}
   }
-  return s;
-})();
-function wlev(a, b){
-  const m = a.length, n = b.length; let prev = Array.from({length:n+1}, (_, j) => j), cur = new Array(n+1);
-  for (let i = 1; i <= m; i++){ cur[0] = i;
-    for (let j = 1; j <= n; j++){ const s = a[i-1] === b[j-1] ? 0 : CONF.has(a[i-1] + b[j-1]) ? 0.5 : 1;
-      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + s); }
-    [prev, cur] = [cur, prev]; }
-  return prev[n];
-}
-
-/* n-gram: 자모를 3개씩 묶은 조각이 얼마나 겹치는지 본다. 앞뒤 잡문자나 일부 뭉개진 글자에 강하다 */
-const grams = (s, n) => { const p = '^'.repeat(n-1) + s + '$'.repeat(n-1), g = new Map();
-  for (let i = 0; i + n <= p.length; i++){ const k = p.slice(i, i+n); g.set(k, (g.get(k)||0) + 1); } return g; };
-const dice = (A, B) => { let c = 0, a = 0, b = 0; for (const v of A.values()) a += v; for (const v of B.values()) b += v;
-  for (const [k, v] of A) if (B.has(k)) c += Math.min(v, B.get(k)); return a + b ? 2*c/(a+b) : 0; };
-const cover = (P, W) => { let c = 0, b = 0; for (const [k, v] of W){ b += v; if (P.has(k)) c += Math.min(v, P.get(k)); } return b ? c/b : 0; };
-const DJ = new Map(DICT.map(w => [w, jamo(w)])), DG = new Map(DICT.map(w => [w, grams(jamo(w), 3)]));
-// 앞뒤에 붙은 잡글자 한 글자까지 떼어 보고 비교 (예: 뿌셀프라면9층 → 셀프라면9층)
-const trims = part => { const L = part.length, r = [[part, 0]];
-  if (L >= 4) r.push([part.slice(1), 1], [part.slice(0, -1), 1]);
-  if (L >= 6) r.push([part.slice(1, -1), 2]);
-  return r; };
-function fix(part, audit=[]){
-  if (!part || DICT.includes(part)) return part;
-  const pj = jamo(part);
-  if (pj.length < 4) return part;
-  // 1단계 n-gram: 조각이 많이 겹치는 사전 메뉴 8개를 후보로 뽑는다
-  const P3 = grams(pj, 3);
-  const cand = DICT.filter(w => Math.abs(w.length - part.length) <= 3)
-    .map(w => ({ w, ng: cover(DG.get(w), P3) * 0.5 + dice(P3, DG.get(w)) * 0.5 }))
-    .sort((a, b) => b.ng - a.ng).slice(0, 8);
-  // 2단계 검증: 헷갈리는 자모는 반값으로 친 자모 거리 비율
-  const sc = cand.map(c => { const wj = DJ.get(c.w); let r = 9;
-    for (const [t, cut] of trims(part)){ if (cut && c.w.length < 3) continue; const tj = jamo(t);
-      r = Math.min(r, (wlev(tj, wj) + cut*0.5) / Math.max(tj.length, wj.length)); }
-    return { w: c.w, r, ng: c.ng }; }).sort((a, b) => a.r - b.r || b.ng - a.ng);
-  const [a, b] = sc; if (!a) return part;
-  const gap = b ? b.r - a.r : 1;
-  // 기본: 거리 22% 이하 + 2등과 차이. 짧은 메뉴(4~5글자)는 한 글자 차이가 커서 2등과 차이가 클 때만 30%까지
-  const tokens=s=>(s.match(/[0-9]+|[A-Za-z]+|[&/]/g)||[]).join('|');
-  const accepted=tokens(part)===tokens(a.w)&&a.r<=.18&&gap>=.075&&a.ng>=.55;
-  audit.push({raw:part,candidate:a.w,accepted,distance:a.r,margin:gap,ngram:a.ng,reason:accepted?'자모 거리·후보 차이·기호 보존 확인':'불확실하거나 숫자·기호가 달라 원문 유지'});
-  if(accepted)return a.w;
-  return part;
-}
-
-/* 셀을 2.5배 확대 + 흰 여백 → 칸 안의 구분선(PLUS줄 등) 제거 */
-function prepCell(r, image=img){
-  const S = 2.5, P = 16;
-  const w = Math.round(r.w*S) + 2*P, h = Math.round(r.h*S) + 2*P;
-  const color = document.createElement('canvas'); color.width = w; color.height = h;
-  const cx = color.getContext('2d', { willReadFrequently:true });
-  cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
-  cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
-  cx.drawImage(image, r.x, r.y, r.w, r.h, P, P, w - 2*P, h - 2*P);
-  const id = cx.getImageData(0, 0, w, h), d = id.data;
-  // 선 = 양쪽(위아래 또는 좌우) 배경보다 뚜렷하게 어두운 픽셀이 길게 이어진 것 (색 배경 줄은 선으로 보지 않음)
-  const lum = p => (p < 0 || p >= w*h) ? 255 : 0.3*d[p*4] + 0.59*d[p*4+1] + 0.11*d[p*4+2];
-  const O = 5;
-  const lineH = p => { const l = lum(p); return l < 215 && l < lum(p - O*w) - 20 && l < lum(p + O*w) - 20; };
-  const lineV = p => { const l = lum(p); return l < 215 && l < lum(p - O) - 20 && l < lum(p + O) - 20; };
-  const longRun = (n, at, f) => { let best = 0, cur = 0; for (let k = 0; k < n; k++){ if (f(at(k))){ if (++cur > best) best = cur; } else cur = 0; } return best; };
-  const wipe = p => { d[p*4] = d[p*4+1] = d[p*4+2] = 255; };
-  const rowsW = [], colsW = [];
-  for (let y = 0; y < h; y++) if (longRun(w, x => y*w + x, lineH) > (w - 2*P) * 0.5) rowsW.push(y);
-  for (let x = 0; x < w; x++) if (longRun(h, y => y*w + x, lineV) > (h - 2*P) * 0.85) colsW.push(x);
-  const erase=new Set();let darkBefore=0;
-  for(let p=0;p<w*h;p++)if(lum(p)<140)darkBefore++;
-  rowsW.forEach(y=>{for(let x=0;x<w;x++)if(lineH(y*w+x))erase.add(y*w+x);});
-  colsW.forEach(x=>{for(let y=0;y<h;y++)if(lineV(y*w+x))erase.add(y*w+x);});
-  let removedDark=0;for(const p of erase)if(lum(p)<140)removedDark++;
-  for(const p of erase)wipe(p);
-  cx.putImageData(id, 0, 0);
-  // v1.4: 색 배경 줄(PLUS·셀프라면)만 찾아 배경을 흰색으로 맞추고 글자 대비를 높인다. 흰 바탕 줄과 빨간 제목은 그대로 둔다
-  const ink = document.createElement('canvas'); ink.width = w; ink.height = h;
-  const ix = ink.getContext('2d', { willReadFrequently:true }); ix.drawImage(color, 0, 0);
-  const kd = ix.getImageData(0, 0, w, h), k = kd.data;
-  for (let y = 0; y < h; y++){
-    const mins = []; let sat = 0, n = 0;
-    for (let x = 0; x < w; x += 3, n++){ const i = (y*w + x)*4, mx = Math.max(k[i], k[i+1], k[i+2]), mn = Math.min(k[i], k[i+1], k[i+2]);
-      if (mx > 200 && mx - mn > 18) sat++; mins.push(mn); }
-    if (sat < n * 0.5) continue;
-    const bg = mins.sort((a, b) => a - b)[Math.floor(n * 0.7)];
-    for (let x = 0; x < w; x++){ const i = (y*w + x)*4;
-      const v = Math.max(0, Math.min(255, Math.min(k[i], k[i+1], k[i+2]) * 255 / Math.max(1, bg - 15))); k[i] = k[i+1] = k[i+2] = v; }
-  }
-  ix.putImageData(kd, 0, 0);
-  return { color, ink, diagnostics:{wipedPixels:erase.size,removedDark,sourceDark:darkBefore,rows:rowsW,columns:colsW} };
-}
-
-// 워커 생성·설정·판독을 각각 제한하며, 실패 워커는 종료하고 재시도 간격을 둔다.
-const optionalOCRWorkers=new Map(),optionalOCRFailures=new Map();
-function terminateOCRWorker(target){try{return Promise.resolve(target.terminate()).catch(()=>{});}catch(e){return Promise.resolve();}}
-function withOCRDeadline(task,ms,onTimeout){
-  return new Promise((resolve,reject)=>{let finished=false;const timer=setTimeout(()=>{if(finished)return;finished=true;try{if(onTimeout)onTimeout();}catch(e){}reject(new Error('OCR 작업 시간이 초과되었습니다.'));},ms);
-    Promise.resolve(task).then(value=>{if(finished)return;finished=true;clearTimeout(timer);resolve(value);},error=>{if(finished)return;finished=true;clearTimeout(timer);reject(error);});});
-}
-function invalidateOCRWorker(kind,target){
-  if(kind==='main')workerP=null;
-  else{const slot=optionalOCRWorkers.get(kind);if(slot&&(!target||slot.worker===target))optionalOCRWorkers.delete(kind);optionalOCRFailures.set(kind,Date.now()+60000);}
-  if(target)terminateOCRWorker(target);
-}
-async function setOCRParameters(target,params,kind='main'){
-  try{return await withOCRDeadline(target.setParameters(params),5000,()=>invalidateOCRWorker(kind,target));}
-  catch(e){invalidateOCRWorker(kind,target);throw e;}
-}
-async function recognizeOCR(target,image,output,kind='main'){
-  try{return await withOCRDeadline(target.recognize(image,{},output),15000,()=>invalidateOCRWorker(kind,target));}
-  catch(e){invalidateOCRWorker(kind,target);throw e;}
-}
-function getOptionalOCRWorker(kind){
-  if((optionalOCRFailures.get(kind)||0)>Date.now())return Promise.resolve(null);
-  if(!optionalOCRWorkers.has(kind)){
-    const options=kind==='Hangul'?{langPath:'https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/refs/heads/main/script',gzip:false,cachePath:'meal-ocr-1.6-Hangul',cacheMethod:'write'}:{cachePath:'meal-ocr-1.6-eng',cacheMethod:'write'};
-    const slot={worker:null,promise:null};optionalOCRWorkers.set(kind,slot);let abandoned=false;
-    const creation=Tesseract.createWorker(kind==='Hangul'?'Hangul':'eng',1,options);
-    const setup=creation.then(async target=>{slot.worker=target;if(abandoned){await terminateOCRWorker(target);throw new Error('보조 OCR 준비 시간 초과');}await setOCRParameters(target,{tessedit_pageseg_mode:kind==='Hangul'?'7':'10'},kind);return target;});
-    slot.promise=withOCRDeadline(setup,20000,()=>{abandoned=true;invalidateOCRWorker(kind,slot.worker);if(!slot.worker)creation.then(w=>terminateOCRWorker(w)).catch(()=>{});}).catch(()=>{abandoned=true;invalidateOCRWorker(kind,slot.worker);return null;});
-  }
-  return optionalOCRWorkers.get(kind).promise;
-}
-function getDetailWorker(){return getOptionalOCRWorker('Hangul');}
-function getLatinWorker(){return getOptionalOCRWorker('eng');}
-
-async function verifyTrailingCode(image,r,line,reading){
-  const stem=reading.text.replace(/[A-Za-z0-9]+$/,''),hypotheses=DICT.filter(d=>d.startsWith(stem)&&/^[A-Za-z0-9]$/.test(d.slice(stem.length)));
-  if(!stem||!hypotheses.length)return null;
-  const c=document.createElement('canvas');c.width=Math.round(r.w);c.height=Math.round(r.h);const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(image,r.x,r.y,r.w,r.h,0,0,c.width,c.height);const pix=cx.getImageData(0,0,c.width,c.height).data,runs=[];let start=-1;
-  for(let x=line.left;x<=line.right+1;x++){let count=0;if(x<=line.right)for(let y=line.top;y<=line.bottom;y++){const p=(y*c.width+x)*4;if(.3*pix[p]+.59*pix[p+1]+.11*pix[p+2]<170)count++;}if(count&&start<0)start=x;if(!count&&start>=0){runs.push([start,x-1]);start=-1;}}
-  if(!runs.length)return null;const [a,b]=runs[runs.length-1],ratio=(b-a+1)/line.height;
-  if(ratio<.2||ratio>.8)return null;
-  const s=6,pad=20,left=Math.max(0,a-2),right=Math.min(r.w,b+3),top=Math.max(0,line.top-2),bottom=Math.min(r.h,line.bottom+3),tail=document.createElement('canvas');tail.width=Math.round((right-left)*s)+pad*2;tail.height=Math.round((bottom-top)*s)+pad*2;
-  const z=tail.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,tail.width,tail.height);z.drawImage(image,r.x+left,r.y+top,right-left,bottom-top,pad,pad,tail.width-pad*2,tail.height-pad*2);
-  const worker=await getLatinWorker();if(!worker)throw new Error('영문 보조 모델 준비 실패');const res=await recognizeOCR(worker,tail,undefined,'eng'),code=(res.data.text||'').trim();
-  if(!/^[A-Za-z0-9]$/.test(code)||res.data.confidence<85||!hypotheses.includes(stem+code)||stem+code===reading.text)return null;
-  const {candidates:priorCandidates,...originalReading}=reading;
-  return {...originalReading,text:stem+code,normalized:stem+code,source:'verified-tail',confidence:Math.min(reading.confidence,res.data.confidence),
-    glyphEvidence:{verified:true,box:{x:r.x+left,y:r.y+top,w:right-left,h:bottom-top},raw:res.data.text,confidence:res.data.confidence},
-    corrections:[...reading.corrections,{raw:reading.text,candidate:stem+code,accepted:true,reason:'원본 끝 문자의 독립 영문·숫자 OCR 확인'}]};
-}
-
-function detailLineCanvas(image,r,line){
-  const p=16,s=4,pad=Math.max(2,Math.round(image.naturalWidth/1200*2)),y=Math.max(0,line.top-pad),ye=Math.min(r.h,line.bottom+pad+1),x=Math.max(2,Math.round(r.w*.02)),w=r.w-x*2;
-  const c=document.createElement('canvas');c.width=Math.round(w*s)+p*2;c.height=Math.round((ye-y)*s)+p*2;const cx=c.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);cx.drawImage(image,r.x+x,r.y+y,w,ye-y,p,p,c.width-p*2,c.height-p*2);return c;
-}
-function normalizeOCRText(raw){
-  return String(raw||'').normalize('NFKC').replace(/[\u0000-\u001f]/g,' ').replace(/\s+/g,'').replace(/^[^가-힣A-Za-z0-9"'“”‘’]+|[^가-힣A-Za-z0-9"'“”‘’]+$/g,'').replace(/[“”]/g,'"');
-}
-function correctOCRText(raw){
-  const normalized=normalizeOCRText(raw),corrections=[];
-  if(!normalized)return {text:'',normalized,corrections};
-  let text=normalized;
-  if(text.includes('/')){const whole=fix(text,corrections);text=whole!==text?whole:text.split('/').map(p=>fix(p,corrections)).join('/');}
-  else text=fix(text,corrections);
-  return {text,normalized,corrections};
-}
-function menuLineRegions(image,r){
-  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(r.w));c.height=Math.max(1,Math.round(r.h));
-  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(image,r.x,r.y,r.w,r.h,0,0,c.width,c.height);
-  const pix=cx.getImageData(0,0,c.width,c.height).data,rows=[],merge=Math.max(1,Math.round(image.naturalWidth/1200)),inset=Math.max(2,Math.round(c.width*.015));
-  for(let y=0;y<c.height;y++){let count=0,left=c.width,right=-1;for(let x=inset;x<c.width-inset;x++){const p=(y*c.width+x)*4;if(.3*pix[p]+.59*pix[p+1]+.11*pix[p+2]<160){count++;left=Math.min(left,x);right=Math.max(right,x);}}
-    rows.push({active:count>=Math.max(2,c.width*.006)&&count<c.width*.82,count,left,right});}
-  const bands=[];let start=-1;
-  for(let y=0;y<=rows.length;y++){const on=y<rows.length&&rows[y].active;if(on&&start<0)start=y;if(!on&&start>=0){const prev=bands[bands.length-1];if(prev&&start-prev[1]<=merge+1)prev[1]=y-1;else bands.push([start,y-1]);start=-1;}}
-  const minHeight=Math.max(3,Math.round(image.naturalWidth/1200*2)),heights=bands.map(([a,b])=>b-a+1).filter(h=>h>=minHeight&&h<image.naturalWidth/1200*32).sort((a,b)=>a-b);
-  const median=heights.length?heights[Math.floor(heights.length/2)]:minHeight;
-  const regions=[],rejected=[];
-  for(const [top,bottom] of bands){let left=c.width,right=-1;for(let y=top;y<=bottom;y++){left=Math.min(left,rows[y].left);right=Math.max(right,rows[y].right);}
-    const h=bottom-top+1,w=right-left+1;
-    if(h<minHeight||right<left||h>median*1.9){rejected.push({top,bottom,left,right,reason:'선 또는 장식 후보'});continue;}
-    const glyphEstimate=Math.round(w/Math.max(1,h*.95)),shortGeometry=w/h>=1.4&&w/h<=6.8;
-    regions.push({top,bottom,left,right,height:h,width:w,glyphEstimate,shortGeometry});
-  }
-  return {regions,rejected,width:c.width,height:c.height,median};
-}
-function rawLineCanvas(image,r,line,variant){
-  const p=16,pad=Math.max(2,Math.round(image.naturalWidth/1200*1.5));
-  const x=Math.max(0,line.left-pad),xe=Math.min(r.w,line.right+pad+1),y=Math.max(0,line.top-pad),ye=Math.min(r.h,line.bottom+pad+1);
-  const scale=variant===0?3:6,c=document.createElement('canvas');c.width=Math.round((xe-x)*scale)+p*2;c.height=Math.round((ye-y)*scale)+p*2;
-  const cx=c.getContext('2d',{willReadFrequently:true});cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);
-  cx.drawImage(image,r.x+x,r.y+y,xe-x,ye-y,p,p,c.width-p*2,c.height-p*2);
-  if(variant===1){const d=cx.getImageData(0,0,c.width,c.height);for(let i=0;i<d.data.length;i+=4){const v=.3*d.data[i]+.59*d.data[i+1]+.11*d.data[i+2];d.data[i]=d.data[i+1]=d.data[i+2]=v;}cx.putImageData(d,0,0);}
-  return {canvas:c,origin:{x:r.x+x,y:r.y+y,w:xe-x,h:ye-y},scale};
-}
-function chooseLineReading(candidates,region){
-  const usable=candidates.filter(c=>/[가-힣]/.test(c.text)||DICT.includes(c.text));
-  if(!usable.length)return null;
-  const family=c=>c.source==='Hangul-line-4x'?'Hangul':c.source==='verified-tail'?'eng':'kor';
-  const rawSupport=new Map(),rawOccurrences=new Map();for(const c of usable){if(!rawSupport.has(c.normalized))rawSupport.set(c.normalized,new Set());rawSupport.get(c.normalized).add(family(c));rawOccurrences.set(c.normalized,(rawOccurrences.get(c.normalized)||0)+1);}
-  const numberKey=c=>(c.normalized.match(/[0-9]+/g)||[]).join('|'),numberKeys=new Set(usable.map(numberKey).filter(Boolean));
-  const originalNumber=usable.find(c=>c.source==='block'&&numberKey(c));
-  const numericEvidence=new Map();for(const c of usable){const key=numberKey(c);if(!key)continue;if(!numericEvidence.has(key))numericEvidence.set(key,{key,families:new Set(),highFamilies:new Set(),peak:0});const n=numericEvidence.get(key);n.families.add(family(c));if(c.confidence>=85)n.highFamilies.add(family(c));n.peak=Math.max(n.peak,c.confidence);}
-  const strongestNumber=[...numericEvidence.values()].sort((a,b)=>b.highFamilies.size-a.highFamilies.size||b.families.size-a.families.size||b.peak-a.peak)[0];
-  const preferredNumber=strongestNumber&&strongestNumber.highFamilies.size>=2?strongestNumber.key:originalNumber&&originalNumber.confidence>=80?numberKey(originalNumber):strongestNumber?strongestNumber.key:'';
-  const scored=usable.map(c=>{
-    const onlyKorean=/^[가-힣]{2,6}$/.test(c.text),geometry=region.shortGeometry&&onlyKorean;
-    const fit=geometry?Math.abs(c.text.length-region.glyphEstimate):0;
-    let score=c.confidence*.008+Math.min(2,rawSupport.get(c.normalized).size)*.9;
-    // 반복 안정성은 작은 동률 보조점수일 뿐, 독립 표수·확정 근거로 계산하지 않는다.
-    const repeatStable=rawOccurrences.get(c.normalized)>=2;if(repeatStable)score+=.15;
-    if(DICT.includes(c.text))score+=c.text===c.normalized?1.5:1.1;
-    if(geometry)score+=fit===0?1.4:-Math.min(2.8,fit*1.8);
-    if(c.corrections.some(x=>x.accepted))score-=.2;
-    if(c.glyphEvidence&&c.glyphEvidence.verified)score+=2;
-    if(numberKeys.size>1&&numberKey(c)!==preferredNumber&&!(c.glyphEvidence&&c.glyphEvidence.verified))score-=4;
-    if(/[ㄱ-ㅣ]/.test(c.normalized))score-=1;
-    if(/[^가-힣A-Za-z0-9/&"'“”‘’]/.test(c.normalized))score-=1.2;
-    if(c.text.length<2&&!DICT.includes(c.text))score-=1;
-    return {...c,score,visualLengthFit:geometry?fit:null,votes:rawSupport.get(c.normalized).size,repeatStable,modelFamily:family(c)};
-  }).sort((a,b)=>b.score-a.score||b.confidence-a.confidence);
-  const best=scored[0],other=scored.find(c=>c.text!==best.text),reasons=[];
-  if(other&&best.score-other.score<.6)reasons.push('후보 차이가 작음');
-  if(best.confidence<65)reasons.push('낮은 신뢰도');
-  if(best.normalized!==best.text&&best.votes<2&&!(best.glyphEvidence&&best.glyphEvidence.verified))reasons.push('교정 전 원문의 독립 대조 부족');
-  if(numberKeys.size>1&&!(best.glyphEvidence&&best.glyphEvidence.verified))reasons.push('숫자 판독 불일치');
-  if(best.visualLengthFit!==null&&best.visualLengthFit>0)reasons.push('원본 글자 수와 불일치');
-  if(best.corrections.some(c=>!c.accepted&&c.distance<=.35))reasons.push('사전 후보 불확실');
-  return {...best,uncertain:reasons.length>0,reasons,candidates:scored};
+  if(tail)text=text.replace(/[^가-힣0-9]+$/,'')+tail.ch;else if(/[^가-힣0-9A-Za-z&/]$/.test(text))text=text.slice(0,-1);
+  text=cleanSymbols(text).replace(/\?/g,'');
+  const fixed=correctLine(text,dict,parts);if(fixed.how)steps.push(fixed.how+':'+fixed.text);
+  return {text:fixed.text,title:red,raw,steps};
 }
 async function ocrCell(day,meal,context={image:img,grid,noticeId:notice&&notice.boardIdx}){
   if(!context.grid||!context.grid.valid)throw new Error('표 검증 실패');
-  const started=performance.now(),rect=cellRect(day,meal,context.grid),prepared=prepCell(rect,context.image),w=await getWorker();
-  const attempts=[],lineAudits=[],reasons=[],failures=[];
-  try{
-    await setOCRParameters(w,{tessedit_pageseg_mode:'6'});
-    const firstResult=await recognizeOCR(w,prepared.ink,{blocks:true}),blocks=(firstResult.data.blocks||[]).flatMap(b=>(b.paragraphs||[]).flatMap(p=>p.lines||[]));
-    const base=blocks.map(l=>({...correctOCRText(l.text),raw:(l.text||'').trim(),confidence:l.confidence||0,source:'block',bbox:l.bbox,
-      cy:l.bbox?((l.bbox.y0+l.bbox.y1)/2-16)/2.5:null}));
-    attempts.push({source:'block',raw:firstResult.data.text||'',confidence:firstResult.data.confidence||0});
-    const segmentation=menuLineRegions(context.image,rect),used=new Set(),lines=[];
-    await setOCRParameters(w,{tessedit_pageseg_mode:'7'});
-    for(const region of segmentation.regions){
-      const mid=(region.top+region.bottom)/2,near=base.map((l,i)=>({l,i,d:l.cy===null?Infinity:Math.abs(l.cy-mid)})).filter(x=>!used.has(x.i)&&x.d<Math.max(region.height*.7,segmentation.median*.65));
-      const candidates=near.map(({l,i})=>{used.add(i);return l;});
-      const stable=candidates.find(c=>c.confidence>=85&&DICT.includes(c.normalized)&&(!region.shortGeometry||!/^[가-힣]{2,6}$/.test(c.normalized)||Math.abs(c.normalized.length-region.glyphEstimate)<1));
-      if(!stable){
-        const firstCanvas=rawLineCanvas(context.image,rect,region,0),res=await recognizeOCR(w,firstCanvas.canvas,{blocks:true});
-        candidates.push({...correctOCRText(res.data.text),raw:(res.data.text||'').trim(),confidence:res.data.confidence||0,source:'line-color-3x'});
-        const provisional=chooseLineReading(candidates,region),agree=provisional&&provisional.text===provisional.normalized&&candidates.filter(c=>c.normalized===provisional.normalized).length>=2;
-        if(!agree||!provisional||provisional.uncertain||provisional.visualLengthFit>0){
-          const secondCanvas=rawLineCanvas(context.image,rect,region,1),second=await recognizeOCR(w,secondCanvas.canvas,{blocks:true});
-          candidates.push({...correctOCRText(second.data.text),raw:(second.data.text||'').trim(),confidence:second.data.confidence||0,source:'line-gray-6x'});
-        }
-      }
-      let chosen=chooseLineReading(candidates,region);
-      const needIndependent=chosen&&(chosen.uncertain||chosen.confidence<85||chosen.visualLengthFit>0||chosen.normalized!==chosen.text||(!DICT.includes(chosen.text)&&candidates.some(c=>/[?『』]/.test(c.raw))));
-      if(needIndependent){try{const detail=await getDetailWorker();if(!detail)throw new Error('한글 보조 모델 준비 실패');if(detail){const res=await recognizeOCR(detail,detailLineCanvas(context.image,rect,region),{blocks:true},'Hangul');candidates.push({...correctOCRText(res.data.text),raw:(res.data.text||'').trim(),confidence:res.data.confidence||0,source:'Hangul-line-4x'});chosen=chooseLineReading(candidates,region);}}catch(e){reasons.push('보조 판독을 완료하지 못했습니다.');failures.push({type:'detail-failed',region});}}
-      if(chosen){try{const tail=await verifyTrailingCode(context.image,rect,region,chosen);if(tail){candidates.push(tail);chosen=chooseLineReading(candidates,region);}}catch(e){reasons.push('기호 문자를 별도로 확인하지 못했습니다.');failures.push({type:'symbol-failed',region});}}
-      lineAudits.push({region,chosen});
-      if(!chosen){reasons.push('읽지 못한 줄이 있습니다.');failures.push({type:'unreadable-line',region});continue;}
-      const redBox={x0:region.left*2.5+16,y0:region.top*2.5+16,x1:(region.right+1)*2.5+16,y1:(region.bottom+1)*2.5+16};
-      const clipped=region.top<2||region.bottom>rect.h-3;
-      lines.push({...chosen,title:isRedLine(prepared.color,redBox),clipped,position:mid});
-      if(chosen.uncertain)reasons.push('확인이 필요한 글자가 있습니다.');if(clipped)reasons.push('경계 가까이에 글자가 있습니다.');
-    }
-    // 새 줄 검출이 놓친 1차 메뉴는 조용히 버리지 않고 위치 순서대로 보존한다.
-    base.forEach((l,i)=>{if(used.has(i)||!/[가-힣]/.test(l.text))return;const already=lines.some(a=>a.text===l.text&&l.cy!==null&&Math.abs(a.position-l.cy)<segmentation.median);
-      if(!already){lines.push({...l,title:l.bbox?isRedLine(prepared.color,l.bbox):false,position:l.cy===null?rect.h:l.cy,uncertain:true,source:'block-fallback'});reasons.push('줄 경계가 불확실한 판독을 보존했습니다.');}});
-    lines.sort((a,b)=>a.position-b.position);
-    const ink=prepared.ink.getContext('2d').getImageData(16,16,prepared.ink.width-32,prepared.ink.height-32).data;let dark=0;for(let i=0;i<ink.length;i+=4)if(.3*ink[i]+.59*ink[i+1]+.11*ink[i+2]<140)dark++;
-    const empty=dark/(ink.length/4)<.0003;
-    if(!lines.length&&!empty)reasons.push('텍스트를 판독하지 못했습니다.');
-    return {lines,status:empty&&!lines.length?'empty':reasons.length?'review':'ok',reasons:[...new Set(reasons)],failures,attempts,lineAudits,segmentation,rect,elapsedMs:Math.round(performance.now()-started),profile:'line-evidence-v1',preprocess:prepared.diagnostics||null};
-  }finally{await setOCRParameters(w,{tessedit_pageseg_mode:'6'}).catch(()=>{});}
+  const started=performance.now(),rect=cellRect(day,meal,context.grid),cell=splitLines(context.image,rect),main=await getWorker();
+  const dict=menuDictionary(),parts=menuParts(dict),lines=[],failures=[];
+  let w=main;
+  try{for(const ln of cell.lines){let r=null;for(let attempt=0;attempt<2&&!r;attempt++){try{r=await readMenuLine(w,cell,ln,context.image,dict,parts);}catch(e){if(attempt===0){w=await getWorker();}else failures.push({type:'line-error',message:e.message});}}
+      if(r){if(r.text)lines.push(r);else failures.push({type:'empty-line'});}}
+    if(!cell.lines.length&&cell.mask.some(v=>v))failures.push({type:'no-lines'});}
+  finally{await setOCRParameters(w,{tessedit_pageseg_mode:'6'}).catch(()=>{});}
+  return {lines,failures,status:!cell.lines.length?'empty':'ok',rect,elapsedMs:Math.round(performance.now()-started),engine:'v1.7'};
 }
-
 
 function showText(){
   const box=$('menu'),my=++runId,context={image:img,grid,noticeId:notice.boardIdx};
@@ -1261,8 +1111,8 @@ function showText(){
     if(my!==runId||showImg)return;
     box.innerHTML='';
     $('ocrNote').textContent=result.failures&&result.failures.length?'일부 메뉴를 끝까지 판독하지 못했어요. 아래 원본 대조를 확인해 주세요.':'텍스트 인식 결과로 일부 오차가 있을 수 있습니다.';
-    if(!result.lines.length){const e=document.createElement('div');e.className='empty';e.textContent=result.status==='empty'?'등록된 메뉴가 없는 빈 칸입니다.':'식단 텍스트를 판독하지 못했습니다. 아래 원본 대조를 확인해 주세요.';box.appendChild(e);}
-    result.lines.forEach(l=>{const d=document.createElement('div');d.className=l.title?'t':'l';d.textContent=l.text;d.title='OCR 원문: '+l.raw+(l.corrections.some(c=>c.accepted)?' / 교정: '+l.corrections.filter(c=>c.accepted).map(c=>c.reason).join(', '):'');box.appendChild(d);});
+    if(!result.lines.length){const e=document.createElement('div');e.className='empty';e.textContent=result.status==='empty'&&!result.failures.length?'등록된 메뉴가 없는 빈 칸입니다.':'식단 텍스트를 판독하지 못했습니다. 아래 원본 대조를 확인해 주세요.';box.appendChild(e);}
+    result.lines.forEach(l=>{const d=document.createElement('div');d.className=l.title?'t':'l';d.textContent=l.text;d.title='OCR 원문: '+l.raw+(l.steps.length?' / '+l.steps.join(', '):'');box.appendChild(d);});
     if(window.mealDiagnostics&&window.mealDiagnostics.notice===context.noticeId)window.mealDiagnostics.ocr[key]=result;
   };
   if(ocrCache.has(key)){paint(ocrCache.get(key));return;}
@@ -1271,7 +1121,7 @@ function showText(){
   ocrChain=ocrChain.catch(()=>{}).then(async()=>{
     if(my!==runId)return;
     if(ocrCache.has(key))return paint(ocrCache.get(key));
-    try{const result=await ocrCell(d,m,context);ocrCache.set(key,result);paint(result);}
+    try{const result=await ocrCell(d,m,context);if(!result.failures.some(f=>f.type==='line-error'))ocrCache.set(key,result);paint(result);}
     catch(e){if(my!==runId||showImg)return;box.innerHTML='<div class="empty">판독 확인 필요: 텍스트를 불러오지 못했습니다. 아래 원본 보기를 이용해 주세요.</div>';}
   });
 }
