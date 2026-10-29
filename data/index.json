@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "timezone": "Asia/Seoul",
+  "retention": {
+    "days_after_period_end": 14
+  },
+  "weeks": [
+    {
+      "start": "2026-10-26",
+      "end": "2026-11-01",
+      "path": "weeks/2026-10-26.json",
+      "board_idx": 2156,
+      "image_sha256": "6a0be305dba1f32a283625432b1108da36e9b28d3066239cdfc68bf749f53374",
+      "sha256": "5b758a517c96a5001dc5ba8931db72a93b8e1035ae780367748b095e307a5e8d"
+    },
+    {
+      "start": "2026-11-02",
+      "end": "2026-11-08",
+      "path": "weeks/2026-11-02.json",
+      "board_idx": 2160,
+      "image_sha256": "94d7bab4e624f5a5e32b7da0ac98c0625627a610611daf3900e27d72e5ad7a0f",
+      "sha256": "1ea89cc1009d6e3f4d76d08b38ddd3629c17458016c3d2c61b37f93189c142d9"
+    }
+  ]
+}
