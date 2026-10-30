@@ -6,12 +6,11 @@
 <meta name="color-scheme" content="light">
 <title>오늘의 식단</title>
 <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABEklEQVR4AZRQuXHDMBBcIlHkUV0uAAjVgUJVoczuwJnB3HWJwwLOuwRo4EyOnpnbwz27S4ABP3bAt30g242wh4hmiHZLiZp3OwTMuGLAGcCRuB9jWUdyaXNOb7gGik9l/CA38R+RJqfA7pUvk+7iKAM32TQ7X+45dw34VkQmRq9x9a6BBMbEgJAzNSp4/I9dg1zJI6/PWDR1tNR92hhsiNVBT+mFa+0NRBbW7cZtXbSzGXTCxJpRfmA1Ud9krSoGdVu5APsx8SBWqv6H6jEyCzwUQWQV3UxtAYd6+yKmaRn6rBtM5PkpOwk1T7zFYsCZIspIUANMIQ34KrXPEgl+6ruB2pBnXFh8cjURz8YkzTzj8gsAAP//Wcr5IAAAAAZJREFUAwDcOmBE51DjJwAAAABJRU5ErkJggg==">
-<style>:root{color-scheme:light;--shadow:0 5px 9px #303c252b;}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}body{margin:0 auto;padding:0 14px;font:19.2px / 1.5 -apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;letter-spacing:-.025em;}button{font:inherit;cursor:pointer;border:0;outline:none;}button:focus-visible{outline-style:solid;outline-width:2px;outline-offset:3px;}button:disabled{opacity:.4;cursor:default;}[hidden]{display:none !important;}header{display:flex;align-items:center;justify-content:center;padding:8px 0;}h1{margin:0;line-height:0;}#home{display:block;padding:0;background:transparent;line-height:0;}h1 img{aspect-ratio:700/363;display:block;height:auto;max-width:100%;}.days{height:69px;display:grid;grid-template-columns:24px repeat(7,minmax(0,1fr)) 24px;align-items:center;gap:1px;padding:3px 4px;container-type:inline-size;}.go{width:24px;height:40px;padding:0;background:transparent;font-size:26px;line-height:1;}.day{width:min(100%,60px);aspect-ratio:1 / 1;min-width:0;justify-self:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;border-radius:50%;background:transparent;font-size:clamp(11px,3.4cqw,17px);font-weight:400;line-height:1.15;}.day small{margin-top:3px;font-size:clamp(8px,2.3cqw,11px);font-weight:400;line-height:1.2;opacity:.9;}.tabs{height:35px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));container-type:inline-size;}.tab{min-width:0;height:52.5px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;font-size:clamp(11px,3.4cqw - .34px,17px);font-weight:700;line-height:1.15;}.tab small{display:block;margin:0;font-size:clamp(8px,2.3cqw - .23px,11px);font-weight:400;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;}.menu-box{display:flex;flex-direction:column;padding:10px;overflow:hidden;}.menu-header{height:49px;align-items:center;padding-bottom:16px;margin-bottom:14px;border-bottom-width:1px;border-bottom-style:solid;}.badge{font-size:24px;font-weight:800;letter-spacing:-1.4px;color:#3c2a19;white-space:nowrap;}.imgview canvas,.imgview img{display:block;width:100%;height:auto;}#dateStrip{margin-bottom:10px;}#status{margin:0 0 17px;text-align:center;font-size:14px;}@media (max-width:440px){.badge{font-size:20px;}}#stickyShell{position:relative;top:0;z-index:20;padding-bottom:14px;margin-bottom:8px;}header{margin-bottom:10px;}.days{margin-bottom:14px;border-radius:16px;}.tabs{gap:8px;margin-bottom:0;}.tab{padding:4px 5px;border-radius:10px;}.menu-box{border-radius:20px;}.menu-header{border-bottom-color:rgba(106,125,138,.22);}.imgview{position:relative;overflow:hidden;border-radius:10px;}.imgview::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:rgba(124,131,128,.12) 2px 2px 5px inset,rgba(255,255,255,.6) -2px -2px 5px inset;}.days:has(.day[data-day="0"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="1"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="2"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="3"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="4"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="5"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="6"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) 24px;}.days{overflow:visible;transition:grid-template-columns .2s ease-out;}.day{position:relative;transition:transform .2s ease-out,box-shadow .2s ease-out;}.day[aria-pressed="true"]{z-index:2;width:min(100%,78px);transform:translateY(-5px);}@media (prefers-reduced-motion:reduce){.days,.day{transition:none;}}.day[aria-pressed="true"]{font-weight:800;font-size:clamp(16px,4.5cqw,22px);}.day[aria-pressed="true"] small{opacity:1;font-weight:600;font-size:clamp(10px,2.9cqw,13px);}.tabs{overflow:visible;transition:grid-template-columns .2s ease-out;}.tab{position:relative;transition:transform .2s ease-out,box-shadow .2s ease-out;}.tab[aria-selected="true"]{border-width:0;border-style:none;border-image:none;z-index:2;transform:translateY(-4px);font-weight:800;}.tabs:has(.tab[data-meal="breakfast"][aria-selected="true"]){grid-template-columns:1.18fr 1fr 1fr 1fr;}.tabs:has(.tab[data-meal="lunch"][aria-selected="true"]){grid-template-columns:1fr 1.18fr 1fr 1fr;}.tabs:has(.tab[data-meal="dinner"][aria-selected="true"]){grid-template-columns:1fr 1fr 1.18fr 1fr;}.tabs:has(.tab[data-meal="night"][aria-selected="true"]){grid-template-columns:1fr 1fr 1fr 1.18fr;}@media (prefers-reduced-motion:reduce){.tabs,.tab{transition:none;}}.tab[aria-selected="true"]{font-size:clamp(13.2px,4.08cqw - .408px,20.4px);}.menu-header{display:none;}.days{box-shadow:none;}.menu-box{position:relative;box-shadow:none;}.menu-box::after{content:"";position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;}body{width:360px;max-width:100%;zoom:1.5;}@media (max-width:350px){.tab{padding-left:0;padding-right:0;}.tab small{font-size:7px;}}h1 img{width:238px;}header{height:auto;min-height:94px;}html{background:#f8f8f8;}body{background:#f8f8f8;color:#334155;}button:focus-visible{outline-color:#0284c7;}#stickyShell{background:none;backdrop-filter:none;}#status{color:#64748b;}.go{color:#0284c7;}.days{background:#fff;border:1px solid #e2e8f0;backdrop-filter:none;}.day{color:#334155;}.day[data-day="5"]{color:#0369a1;}.day[data-day="6"]{color:#0369a1;}.tab{background:#fff;border:1px solid #e2e8f0;color:#334155;box-shadow:none;}.tab small{color:#64748b;}.day[aria-pressed="true"]{background:linear-gradient(145deg,#0ea5e9,#0284c7);color:#fff;text-shadow:none;box-shadow:rgba(2,132,199,.3) 0 6px 12px;}.day[aria-pressed="true"] small{color:#e0f2fe;text-shadow:none;}.tab[aria-selected="true"]{background:linear-gradient(145deg,#0ea5e9,#0284c7);border-color:#0284c7;color:#fff;box-shadow:rgba(2,132,199,.3) 0 6px 12px;}.tab[aria-selected="true"] small{color:#e0f2fe;}.menu-box{background:#fff;border:1px solid #e2e8f0;}.menu-box::after{box-shadow:none;}.imgview{background:#fff;}.app-version{margin:12px 0 16px;text-align:center;font-size:10px;line-height:1.4;color:#9ca3af;}</style>
+<style>:root{color-scheme:light;--shadow:0 5px 9px #303c252b;}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}body{margin:0 auto;padding:0 14px;font:19.2px / 1.5 -apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;letter-spacing:-.025em;}button{font:inherit;cursor:pointer;border:0;outline:none;}button:focus-visible{outline-style:solid;outline-width:2px;outline-offset:3px;}button:disabled{opacity:.4;cursor:default;}[hidden]{display:none !important;}header{display:flex;align-items:center;justify-content:center;padding:8px 0;}h1{margin:0;line-height:0;}#home{display:block;padding:0;background:transparent;line-height:0;}h1 img{aspect-ratio:700/363;display:block;height:auto;max-width:100%;}.days{height:69px;display:grid;grid-template-columns:24px repeat(7,minmax(0,1fr)) 24px;align-items:center;gap:1px;padding:3px 4px;container-type:inline-size;}.go{width:24px;height:40px;padding:0;background:transparent;font-size:26px;line-height:1;}.day{width:min(100%,60px);aspect-ratio:1 / 1;min-width:0;justify-self:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;border-radius:50%;background:transparent;font-size:clamp(11px,3.4cqw,17px);font-weight:400;line-height:1.15;}.day small{margin-top:3px;font-size:clamp(8px,2.3cqw,11px);font-weight:400;line-height:1.2;opacity:.9;}.tabs{height:35px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));container-type:inline-size;}.tab{min-width:0;height:52.5px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;font-size:clamp(11px,3.4cqw - .34px,17px);font-weight:700;line-height:1.15;}.tab small{display:block;margin:0;font-size:clamp(8px,2.3cqw - .23px,11px);font-weight:400;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;}.menu-box{display:flex;flex-direction:column;padding:10px;overflow:hidden;}.menu-header{height:49px;align-items:center;padding-bottom:16px;margin-bottom:14px;border-bottom-width:1px;border-bottom-style:solid;}.badge{font-size:24px;font-weight:800;letter-spacing:-1.4px;color:#3c2a19;white-space:nowrap;}.imgview canvas,.imgview img{display:block;width:100%;height:auto;}#dateStrip{margin-bottom:10px;}#status{margin:0 0 17px;text-align:center;font-size:14px;}@media (max-width:440px){.badge{font-size:20px;}}#stickyShell{position:relative;top:0;z-index:20;padding-bottom:14px;margin-bottom:8px;}header{margin-bottom:10px;}.days{margin-bottom:14px;border-radius:16px;}.tabs{gap:8px;margin-bottom:0;}.tab{padding:4px 5px;border-radius:10px;}.menu-box{border-radius:20px;}.menu-header{border-bottom-color:rgba(106,125,138,.22);}.imgview{position:relative;overflow:hidden;border-radius:10px;}.imgview::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:rgba(124,131,128,.12) 2px 2px 5px inset,rgba(255,255,255,.6) -2px -2px 5px inset;}.days:has(.day[data-day="0"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="1"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="2"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="3"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="4"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="5"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) minmax(0,1fr) 24px;}.days:has(.day[data-day="6"][aria-pressed="true"]){grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr) 24px;}.days{overflow:visible;transition:grid-template-columns .2s ease-out;}.day{position:relative;transition:transform .2s ease-out,box-shadow .2s ease-out;}.day[aria-pressed="true"]{z-index:2;width:min(100%,78px);transform:translateY(-5px);}@media (prefers-reduced-motion:reduce){.days,.day{transition:none;}}.day[aria-pressed="true"]{font-weight:800;font-size:clamp(16px,4.5cqw,22px);}.day[aria-pressed="true"] small{opacity:1;font-weight:600;font-size:clamp(10px,2.9cqw,13px);}.tabs{overflow:visible;transition:grid-template-columns .2s ease-out;}.tab{position:relative;transition:transform .2s ease-out,box-shadow .2s ease-out;}.tab[aria-selected="true"]{border-width:0;border-style:none;border-image:none;z-index:2;transform:translateY(-4px);font-weight:800;}.tabs:has(.tab[data-meal="breakfast"][aria-selected="true"]){grid-template-columns:1.18fr 1fr 1fr 1fr;}.tabs:has(.tab[data-meal="lunch"][aria-selected="true"]){grid-template-columns:1fr 1.18fr 1fr 1fr;}.tabs:has(.tab[data-meal="dinner"][aria-selected="true"]){grid-template-columns:1fr 1fr 1.18fr 1fr;}.tabs:has(.tab[data-meal="night"][aria-selected="true"]){grid-template-columns:1fr 1fr 1fr 1.18fr;}@media (prefers-reduced-motion:reduce){.tabs,.tab{transition:none;}}.tab[aria-selected="true"]{font-size:clamp(13.2px,4.08cqw - .408px,20.4px);}.menu-header{display:none;}.days{box-shadow:none;}.menu-box{position:relative;box-shadow:none;}.menu-box::after{content:"";position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;}body{width:360px;max-width:100%;zoom:1.5;}@media (max-width:350px){.tab{padding-left:0;padding-right:0;}.tab small{font-size:7px;}}h1 img{width:238px;}header{height:auto;min-height:94px;}html{background:#f8f8f8;}body{background:#f8f8f8;color:#334155;}button:focus-visible{outline-color:#0284c7;}#stickyShell{background:none;backdrop-filter:none;}#status{color:#64748b;}.go{color:#0284c7;}.days{background:#fff;border:1px solid #e2e8f0;backdrop-filter:none;}.day{color:#334155;}.day[data-day="5"]{color:#0369a1;}.day[data-day="6"]{color:#0369a1;}.tab{background:#fff;border:1px solid #e2e8f0;color:#334155;box-shadow:none;}.tab small{color:#64748b;}.day[aria-pressed="true"]{background:linear-gradient(145deg,#0ea5e9,#0284c7);color:#fff;text-shadow:none;box-shadow:rgba(2,132,199,.3) 0 6px 12px;}.day[aria-pressed="true"] small{color:#e0f2fe;text-shadow:none;}.tab[aria-selected="true"]{background:linear-gradient(145deg,#0ea5e9,#0284c7);border-color:#0284c7;color:#fff;box-shadow:rgba(2,132,199,.3) 0 6px 12px;}.tab[aria-selected="true"] small{color:#e0f2fe;}.menu-box{background:#fff;border:1px solid #e2e8f0;}.menu-box::after{box-shadow:none;}.imgview{background:#fff;}.app-version{margin:12px 0 16px;text-align:center;font-size:10px;line-height:1.4;color:#9ca3af;}#status{margin:12px 0 0;}#menuText{padding:4px 8px 14px;min-height:160px;text-align:center;line-height:1.7;}#menuText p{margin:0;overflow-wrap:anywhere;}#menuText .meal-date{padding:4px 0 10px;border-bottom:1px solid #e2e8f0;font-size:13px;line-height:1.5;color:#64748b;}#menuText .menu-group{padding:15px 0 4px;font-size:17px;}#menuText .menu-group+.menu-group{margin-top:10px;padding-top:14px;border-top:1px solid #e2e8f0;}#menuText .extra-label{margin-top:14px;font-size:11px;font-weight:700;color:#0284c7;letter-spacing:.04em;}#menuText .menu-extra{font-size:15px;padding-top:2px;}#menuText .menu-empty{padding:24px 0;font-size:15px;color:#64748b;}#menuText .menu-group p.menu-main{font-size:20px;font-weight:800;color:#0284c7;line-height:1.6;margin-bottom:6px;}</style>
 </head>
 <body>
 <div id="stickyShell">
 <header><h1><button id="home" type="button" aria-label="오늘 현재 시간 식단 보기"><img src="data:image/webp;base64,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" alt="오늘의 식단"></button></h1></header>
-<p id="status" role="status" hidden></p>
   <div class="days" id="days" aria-label="요일 선택">
     <button class="go" id="prev" aria-label="이전 주" disabled>‹</button>
     <button class="go" id="next" aria-label="다음 주" disabled>›</button>
@@ -21,412 +20,161 @@
 <main id="view" hidden>
   <section class="menu-box" aria-label="선택한 식단">
     <div class="menu-header"><div class="badge" id="badge" aria-live="polite"></div></div>
-    <div class="imgview">
-      <canvas id="dateStrip" role="img" aria-label="원본 날짜와 요일"></canvas>
-      <canvas id="cell" role="img" aria-label="원본 식단"></canvas>
-      <img id="whole" alt="칸 구분 대신 전체 원본 식단" hidden>
-    </div>
+    <div class="imgview"><article id="menuText" aria-label="선택한 식단 텍스트"></article></div>
   </section>
 </main>
-<footer class="app-version" aria-label="앱 버전">v2.9.0</footer>
+<p id="status" role="status" hidden></p>
+<footer class="app-version" aria-label="앱 버전">v2.10.0</footer>
 <script>
 (()=>{
 'use strict';
-// 화면은 한 번 만들고, 선택 상태와 이미지가 바뀔 때만 갱신한다.
-const $ = id => document.getElementById(id);
-const API = 'https://front.cjfreshmeal.co.kr/notice/v1/notice-detail';
-const MEALS = [
-  {key:'breakfast',label:'아침',time:'06:10~07:00'},
-  {key:'lunch',label:'점심',time:'12:00~13:00'},
-  {key:'dinner',label:'저녁',time:'17:30~18:00'},
-  {key:'night',label:'야식',time:'00:00~00:30'}
-];
-const MEAL_KEYS = MEALS.map(m => m.key);
-const DOW = ['월','화','수','목','금','토','일'];
-const SEED_IDX = 2121, DAY_MS = 864e5, IDLE_MS = 5*60000;
-let notice = null, image = null, grid = null, busy = false, lastTouch = 0, manual = false, displayNote = "";
-let selectedDay = 0, selectedMeal = 'lunch', painted = '', available = [], refreshPending = false, homePending = false;
-const dayIndex = d => (d.getDay()+6)%7;
-const signature = title => (title||'').replace(/\d+/g,'#').replace(/\s+/g,' ').trim();
-const status = text => { $('status').textContent=text; $('status').hidden=!text; };
+// 게시 계약: index={schema_version:'1.0',weeks:[{start:'YYYY-MM-DD',end:'YYYY-MM-DD',path:'...',sha256:'...'}]}.
+// 주차 데이터: period.start/end, days[].date, days[].meals[].meal/menus/main_menus/plus/self_ramen.
+const CONFIG={indexUrl:'https://new9s.github.io/meal/data/index.json',sourceUrl:'https://meal-api.srv2061468.hstgr.cloud/api/meal-sources',refreshMs:300000};
+const $=id=>document.getElementById(id);
+const MEALS=[{key:'breakfast',label:'아침',time:'06:10~07:00'},{key:'lunch',label:'점심',time:'12:00~13:00'},{key:'dinner',label:'저녁',time:'17:30~18:00'},{key:'night',label:'야식',time:'00:00~00:30'}];
+const DOW=['월','화','수','목','금','토','일'],DAY_MS=86400000,IDLE_MS=300000;
+const ALIASES={breakfast:'breakfast',lunch:'lunch',dinner:'dinner',night:'night','조식':'breakfast','아침':'breakfast','중식':'lunch','점심':'lunch','석식':'dinner','저녁':'dinner','야식':'night'};
+let available=[],notice=null,selectedDay=0,selectedMeal='lunch',manual=false,lastTouch=0,busy=false,homePending=false,refreshPending=false,lastError='',sourceError='',painted='',selectionRevision=0;
+const weekCache=new Map();
+function status(text=''){$('status').textContent=[lastError,sourceError,text].filter(Boolean).join(' ');$('status').hidden=!$('status').textContent;}
+function dayTime(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))throw Error('날짜 형식을 확인해 주세요.');const time=Date.parse(value+'T00:00:00Z');if(!Number.isFinite(time)||new Date(time).toISOString().slice(0,10)!==value)throw Error('유효하지 않은 날짜예요.');return time;}
+function addDays(value,count){return new Date(dayTime(value)+count*DAY_MS).toISOString().slice(0,10);}
+function localDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function mealAt(date){const minute=date.getHours()*60+date.getMinutes();if(minute<30)return {key:'night',dayShift:-1};if(minute<420)return {key:'breakfast',dayShift:0};if(minute<780)return {key:'lunch',dayShift:0};if(minute<1080)return {key:'dinner',dayShift:0};return {key:'night',dayShift:0};}
+function currentSelection(now=new Date()){const m=mealAt(now);return {date:addDays(localDate(now),m.dayShift),meal:m.key};}
+function inWeek(date,row){return date>=row.start&&date<=row.end;}
+function pickCurrent(rows,date){return rows.find(row=>inWeek(date,row));}
+function mondayOf(date){return addDays(date,-((new Date(dayTime(date)).getUTCDay()+6)%7));}
+function safeUrl(value,base){if(typeof value!=='string'||!value.trim())throw Error('데이터 주소가 비어 있어요.');const u=new URL(value,base);if(u.protocol!=='https:'||u.username||u.password)throw Error('HTTPS 데이터 주소를 확인해 주세요.');return u.href;}
+function lines(value,name){if(value===undefined)return [];if(!Array.isArray(value)||value.some(line=>typeof line!=='string'))throw Error(name+' 형식을 확인해 주세요.');return value;}
+function normalizeWeek(raw,expected){
+ if(!raw||typeof raw!=='object'||raw.schema_version!=='1.0')throw Error('지원하지 않는 JSON 버전이에요.');
+ const start=raw.period?.start,end=raw.period?.end;
+ if(addDays(start,6)!==end||new Date(dayTime(start)).getUTCDay()!==1)throw Error('식단 적용 기간을 확인해 주세요.');
+ if(expected&&(expected.start!==start||expected.end!==end))throw Error('목록과 식단의 적용 기간이 달라요.');
+ if(!Array.isArray(raw.days)||raw.days.length!==7)throw Error('7일 식단이 필요해요.');
+ const validation=raw.provenance?.validation_status??raw.validation_status;
+ if(validation!==undefined&&!['valid','validated','approved','structure_validated_visual_review'].includes(validation))throw Error('검증 대기 중인 식단이에요.');
+ const uncertain=raw.transcription?.uncertain_items;
+ if(uncertain!==undefined&&(!Array.isArray(uncertain)||uncertain.length))throw Error('판독 확인이 필요한 식단이에요.');
+ const days=raw.days.map(day=>{
+  dayTime(day.date);if(day.date<start||day.date>end||!Array.isArray(day.meals)||day.meals.length!==4)throw Error('날짜 또는 끼니 수를 확인해 주세요.');
+  const meals=day.meals.map(m=>{
+   const meal=typeof m?.meal==='string'&&Object.hasOwn(ALIASES,m.meal)?ALIASES[m.meal]:null;
+   if(!meal||m.date!==day.date)throw Error('끼니의 날짜와 이름을 확인해 주세요.');
+   if(!Array.isArray(m.menus)||m.menus.some(group=>!Array.isArray(group)||group.some(line=>typeof line!=='string')))throw Error('메뉴 구획 형식을 확인해 주세요.');
+   const first=m.menus.map(group=>group.slice(0,1)),reported=m.main_menus;
+   const shape=Array.isArray(reported)&&reported.length===first.length&&reported.every(group=>Array.isArray(group)&&group.every(line=>typeof line==='string'));
+   const main_check=reported===undefined?'missing':!shape?'invalid':JSON.stringify(reported)===JSON.stringify(first)?'match':'mismatch';
+   return {...m,meal,main_check,plus:lines(m.plus,'PLUS'),self_ramen:m.self_ramen==null?[]:typeof m.self_ramen==='string'?[m.self_ramen]:lines(m.self_ramen,'셀프라면')};
+  });
+  if(new Set(meals.map(m=>m.meal)).size!==4)throw Error('끼니가 중복되어 있어요.');
+  return {date:day.date,meals};
+ }).sort((a,b)=>a.date.localeCompare(b.date));
+ if(new Set(days.map(d=>d.date)).size!==7)throw Error('날짜가 중복되어 있어요.');
+ return {start,end,days,raw};
+}
+function normalizeIndex(raw,base){if(!raw||raw.schema_version!=='1.0'||!Array.isArray(raw.weeks))throw Error('주차 목록 형식을 확인해 주세요.');const rows=raw.weeks.map(row=>{if(addDays(row.start,6)!==row.end||new Date(dayTime(row.start)).getUTCDay()!==1)throw Error('주차 목록의 기간이 달라요.');if(typeof row.sha256!=='string'||!/^[a-fA-F0-9]{64}$/.test(row.sha256))throw Error('주차 해시 형식을 확인해 주세요.');if(row.board_idx!==undefined&&(!Number.isSafeInteger(row.board_idx)||row.board_idx<1))throw Error('공지 번호를 확인해 주세요.');return {start:row.start,end:row.end,url:safeUrl(row.path??row.url,base),sha:row.sha256.toLowerCase(),boardIdx:row.board_idx??null};}).sort((a,b)=>a.start.localeCompare(b.start));if(new Set(rows.map(row=>row.start)).size!==rows.length)throw Error('주차 목록이 중복되어 있어요.');return rows;}
+async function getJSON(url){const r=await fetch(url,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('식단 서버 응답 오류 ('+r.status+').');return r.json();}
+async function loadIndex(){const url=safeUrl(CONFIG.indexUrl,location.href);return normalizeIndex(await getJSON(url),url);}
+async function readWeek(row){const cached=weekCache.get(row.start);if(row.sha&&cached?.sha===row.sha)return cached.week;const week=normalizeWeek(await getJSON(row.url),row);weekCache.set(row.start,{sha:row.sha,url:row.url,week});return week;}
 
-function mealAt(date){
-  const minute=date.getHours()*60+date.getMinutes();
-  if(minute<30)return {key:'night',dayShift:-1};
-  if(minute<420)return {key:'breakfast',dayShift:0};
-  if(minute<780)return {key:'lunch',dayShift:0};
-  if(minute<1080)return {key:'dinner',dayShift:0};
-  return {key:'night',dayShift:0};
+// 첫 실행·새로고침에서만 호출합니다. JSON 갱신·화면 복귀와 독립적입니다.
+const NOTICE_API='https://front.cjfreshmeal.co.kr/notice/v1/notice-detail';
+const signature=title=>(title||'').replace(/\d+/g,'#').replace(/\s+/g,' ').trim();
+const NOTICE_FORM=signature('9월 4주차 주간메뉴입니다:D');
+function sourcePayload(n){
+ if(!n||!Number.isSafeInteger(n.boardIdx)||n.boardIdx<1||typeof n.title!=='string'||!n.title.trim()||n.title.length>200||/[\u0000-\u001f\u007f-\u009f]/.test(n.title))throw Error('공지 정보 형식이 달라요.');
+ if(typeof n.fileNm!=='string'||!/^[\x00-\x7f]+$/.test(n.fileNm)||!/^https:\/\/fsmealimageprd\.ifresh\.co\.kr\/upload\/notice\/[A-Za-z0-9_-]+\.(?:png|jpg|jpeg|webp)$/.test(n.fileNm))throw Error('원본 이미지 주소를 확인해 주세요.');
+ return {boardIdx:n.boardIdx,title:n.title,fileNm:n.fileNm};
 }
-function weekStartOf(n){
-  const m=/^(\d{1,2})\.(\d{1,2})\./.exec(n.orgFileNm||'');
-  if(!m)return null;
-  const reg=new Date(n.regDt), year=reg.getFullYear()+(+m[1]<reg.getMonth()+1-6?1:0);
-  const d=new Date(year,+m[1]-1,+m[2]);
-  return Number.isFinite(d.getTime())?d:null;
-}
-function inWeek(date,start){return start&&date>=start&&date<new Date(start.getTime()+7*DAY_MS);}
 async function fetchNotice(id){
-  try{
-    const r=await fetch(API+'?boardIdx='+id,{signal:AbortSignal.timeout(10000)});
-    const j=await r.json();return j.retCode==='00'&&j.data?.fileNm?j.data:null;
-  }catch{return null;}
+ const r=await fetch(NOTICE_API+'?boardIdx='+id,{credentials:'omit',signal:AbortSignal.timeout(10000)});
+ if(!r.ok)throw Error('공지 서버 응답 오류 ('+r.status+').');
+ const j=await r.json();if(j.retCode!=='00')throw Error('공지 조회 응답을 확인해 주세요.');
+ if(!j.data||!j.data.fileNm)return null;
+ if(j.data.boardIdx!==id)throw Error('요청한 공지 번호와 응답이 달라요.');
+ return j.data;
 }
-async function findSame(from,direction,form){
-  let miss=0;
-  for(let id=from+direction,step=0;step<25&&id>0;step++,id+=6*direction){
-    const ids=Array.from({length:6},(_,i)=>id+i*direction).filter(i=>i>0);
-    const rows=await Promise.all(ids.map(fetchNotice));
-    for(let i=0;i<rows.length;i++){
-      const n=rows[i];
-      if(!n){if(++miss>=10&&direction>0)return null;continue;}
-      miss=0;if(signature(n.title)===form)return n;
-    }
+async function submitSource(n){
+ const body=JSON.stringify(sourcePayload(n));if(new TextEncoder().encode(body).length>4096)throw Error('접수 정보 크기를 확인해 주세요.');
+ const r=await fetch(CONFIG.sourceUrl,{method:'POST',headers:{'Content-Type':'application/json'},body,credentials:'omit',signal:AbortSignal.timeout(10000)});
+ if(![200,202].includes(r.status))throw Error('원본 접수 응답 오류 ('+r.status+').');
+ const receipt=await r.json();
+ if(!/^[a-f0-9]{32}$/.test(receipt.job_id)||!['created','updated','duplicate'].includes(receipt.action)||!['pending','leased','completed','failed','superseded'].includes(receipt.state))throw Error('원본 접수 결과를 확인해 주세요.');
+ return receipt;
+}
+async function findNextSource(from){
+ let missing=0;
+ for(let step=0;step<25;step++){
+  const ids=Array.from({length:6},(_,i)=>from+step*6+i+1);
+  const rows=await Promise.all(ids.map(async id=>{try{return {notice:await fetchNotice(id)};}catch(error){return {error};}}));
+  for(const row of rows){if(row.error)throw row.error;if(row.notice){missing=0;if(signature(row.notice.title)===NOTICE_FORM)return sourcePayload(row.notice);}else if(++missing>=10)return null;}
+ }
+ throw Error('공지 탐색 범위에 도달했어요. 새로고침 후 다시 확인해 주세요.');
+}
+async function discoverSources(){
+ const ids=new Set(available.map(row=>row.boardIdx).filter(id=>Number.isSafeInteger(id)&&id>0));
+ try{const saved=Number(localStorage.getItem('mealIdx'));if(Number.isSafeInteger(saved)&&saved>0)ids.add(saved);}catch{}
+ if(!ids.size)ids.add(2121);
+ let latest=null,error=null;
+ try{
+  for(const id of [...ids].sort((a,b)=>a-b)){
+   try{const n=await fetchNotice(id);if(!n||signature(n.title)!==NOTICE_FORM)continue;await submitSource(n);if(!latest||n.boardIdx>latest.boardIdx)latest=n;}catch(e){error=e;}
   }
-  return null;
-}
-function loadImage(src){
-  const load=cors=>new Promise((resolve,reject)=>{
-    const im=new Image();if(cors)im.crossOrigin='anonymous';
-    const timer=setTimeout(()=>{im.src='';reject(new Error('이미지 응답이 늦어요.'));},10000);
-    im.onload=()=>{clearTimeout(timer);resolve(im);};
-    im.onerror=()=>{clearTimeout(timer);reject(new Error('식단 이미지를 불러오지 못했어요.'));};
-    im.src=src;
-  });
-  return load(true).catch(()=>load(false));
-}
-function detectGrid(im,analysisWidth=1200,anchors=null){
-  const failed = () => null;
-  try {
-    const W = analysisWidth, ratio = im.naturalWidth / W, H = Math.round(im.naturalHeight / ratio), weak=!!anchors;
-    const dark=weak?235:215, contrast=weak?8:15, labelDark=weak?235:220, labelContrast=weak?8:12;
-    if (H < 300 || H > 2200) return failed();
-    const c = document.createElement('canvas'); c.width=W; c.height=H;
-    const cx=c.getContext('2d',{willReadFrequently:true}); cx.drawImage(im,0,0,W,H);
-    const data=cx.getImageData(0,0,W,H).data, L=new Float32Array(W*H);
-    for(let p=0;p<L.length;p++) L[p]=.3*data[p*4]+.59*data[p*4+1]+.11*data[p*4+2];
-    const runs=(arr,min)=>{const out=[];let a=-1;for(let i=0;i<=arr.length;i++){const on=i<arr.length&&arr[i]>min;if(on&&a<0)a=i;if(!on&&a>=0){out.push([a,i-1]);a=-1;}}return out;};
-    const colScore=new Float32Array(W);
-    for(let x=3;x<W-3;x++)for(let y=Math.floor(H*.14);y<H*.91;y++){const p=y*W+x;if(L[p]<dark&&L[p]<L[p-3]-contrast&&L[p]<L[p+3]-contrast)colScore[x]++;}
-    const vl=runs(colScore,H*(weak?.14:.24));
-    const bestChain=lines=>{
-    let chain=[];
-    for(let a=0;a<lines.length-1;a++){
-      const gap=lines[a+1][0]-lines[a][0]; if(gap<W*.09||gap>W*.17)continue;
-      const cur=[lines[a]];
-      for(let b=a+1;b<lines.length;b++){
-        const delta=lines[b][0]-cur[cur.length-1][0];
-        if(Math.abs(delta-gap)<=Math.max(3,gap*.025))cur.push(lines[b]);
-        else if(delta>gap*1.04)break;
-      }
-      if(cur.length>chain.length)chain=cur;
-    }
-      return chain;
-    };
-    let chain;
-    if(anchors){
-      const all=anchors.weekdays,models=[all],candidates=new Map();
-      if(all.length>3)for(let i=0;i<all.length;i++)models.push(all.filter((_,j)=>i!==j));
-      const median=values=>{const sorted=[...values].sort((a,b)=>a-b),m=Math.floor(sorted.length/2);return sorted.length%2?sorted[m]:(sorted[m-1]+sorted[m])/2;};
-      for(const points of models){
-        const slopes=[];
-        for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++)if(points[i].i!==points[j].i)slopes.push((points[j].x-points[i].x)/ratio/(points[j].i-points[i].i));
-        if(!slopes.length)continue;
-        const gap=median(slopes),center=median(points.map(a=>a.x/ratio-gap*a.i));
-        if(gap<W*.09||gap>W*.17||all.filter(a=>Math.abs(a.x/ratio-center-gap*a.i)<gap*.12).length<3)continue;
-        const lines=vl.filter(v=>Array.from({length:8},(_,i)=>center+(i-.5)*gap).some(x=>Math.abs((v[0]+v[1])/2-x)<gap*.12)),found=bestChain(lines);
-        if(found.length<7||found.length>8)continue;
-        if(found.length===7){if(Math.abs(found[6][0]+(found[6][0]-found[0][0])/6-W)>5)continue;found.push([W-1,W-1]);}
-        candidates.set(found.map(v=>v.join(':')).join(','),found);
-      }
-      if(candidates.size!==1)return failed();
-      chain=candidates.values().next().value;
-    }else chain=bestChain(vl);
-    if(chain.length<7||chain.length>8)return failed();
-    if(chain.length===7){
-      const gap=(chain[6][0]-chain[0][0])/6, edge=chain[6][0]+gap;
-      if(Math.abs(edge-W)>5)return failed();
-      // 잘린 오른쪽 끝점은 등간격과 뒤의 경계 지지 검사를 통과해야 한다.
-      chain.push([W-1,W-1]);
-    }
-    const dayX=chain[0][0], leftLines=vl.filter(v=>v[1]<dayX-5);
-    const clippedLeft=leftLines.length===1&&leftLines[0][0]<W*.06; if(clippedLeft)leftLines.unshift([0,0]); if(leftLines.length<2)return failed();
-    const labelLeft=leftLines[leftLines.length-2],labelRight=leftLines[leftLines.length-1];
-    if(labelRight[0]-labelLeft[1]<15)return failed();
-    const xa=labelLeft[1]+5, xb=labelRight[0]-5;
-    if(xb-xa<8)return failed();
-    const labelScore=new Float32Array(H), rowScore=new Float32Array(H);
-    for(let y=5;y<H-5;y++){
-      let n=0;
-      for(let x=xa;x<=xb;x++){
-        const p=y*W+x,l=L[p],up=L[p-3*W],down=L[p+3*W];
-        if(l<labelDark&&l<up-labelContrast&&l<down-labelContrast)n++;
-      }
-      labelScore[y]=n/(xb-xa+1);
-      for(let x=dayX+4;x<W-4;x++){const p=y*W+x;if(L[p]<dark&&L[p]<L[p-3*W]-contrast&&L[p]<L[p+3*W]-contrast)rowScore[y]++;}
-    }
-    const rawRows=runs(labelScore,weak?.5:.65).filter(v=>v[0]>H*.08&&v[0]<H*.95), edges=[];
-    for(const r of rawRows){const last=edges[edges.length-1];if(last&&r[0]-last[1]<=4)last[1]=r[1];else edges.push([...r]);}
-    if(clippedLeft){const supports=edges.map(edge=>{const y=Math.round((edge[0]+edge[1])/2);let supported=0;for(let k=0;k<7;k++){let hit=0,total=0;for(let x=chain[k][1]+5;x<chain[k+1][0]-5;x++){total++;let on=false;for(let yy=Math.max(4,y-3);yy<=Math.min(H-5,y+3);yy++){const p=yy*W+x;if(L[p]<labelDark&&L[p]<L[p-3*W]-labelContrast&&L[p]<L[p+3*W]-labelContrast){on=true;break;}}if(on)hit++;}if(hit/Math.max(1,total)>.45)supported++;}return supported;}); for(let i=edges.length-1;i>=0;i--)if(supports[i]<4)edges.splice(i,1);}
-    // 마지막 선 대신 지속적인 바닥 배경 전환이 있는 경우만 종료 경계로 보완한다.
-    if(edges.length===4){
-      for(let y=edges[3][1]+Math.floor(H*.07);y<H*.94;y++){
-        let supported=0,total=0;
-        for(let x=xa;x<=xb;x++){total++;const before=L[(y-5)*W+x];if(before-L[(y+8)*W+x]>40&&before-L[(y+16)*W+x]>40)supported++;}
-        if(supported/total>.85){
-          let across=0;for(let k=0;k<7;k++){const x=Math.round((chain[k][1]+chain[k+1][0])/2);if(L[(y-5)*W+x]-L[(y+8)*W+x]>30)across++;}
-          if(across>=4){let bestY=y,bestDrop=0;for(let yy=y;yy<=y+10;yy++){let drop=0;for(let x=xa;x<=xb;x++)drop+=L[(yy-1)*W+x]-L[(yy+1)*W+x];if(drop>bestDrop){bestDrop=drop;bestY=yy;}}edges.push([bestY-1,bestY+1]);break;}
-        }
-      }
-    }
-    // 식사명 병합 열에는 4개 식사 바깥 경계 5개만 있어야 한다. 부가 메뉴선은 이 열을 통과하지 않는다.
-    // 식사명 열에서만 사라진 선은 다른 요일에 실제 남은 선 중에서만 고른다.
-    if(anchors&&edges.length===4){
-      const options=runs(rowScore,(W-dayX)*.38).filter(r=>r[0]>edges[0][1]+4&&r[1]<edges[3][0]-4&&!edges.some(e=>Math.abs(e[0]-r[0])<5)),trials=[];
-      for(const r of options){
-        const trial=[...edges,r].sort((a,b)=>a[0]-b[0]);
-        const matches=anchors.labels.filter(a=>{const y=a.y/ratio,lo=trial[a.i][1]+1,hi=trial[a.i+1][0]-1;return y>lo&&y<hi&&Math.abs(y-(lo+hi)/2)<=Math.max(4,H*.006);}),boundary=trial.indexOf(r);
-        if(matches.length>=2&&matches.some(a=>a.i===boundary-1||a.i===boundary))trials.push(trial);
-      }
-      if(trials.length===1)edges.splice(0,edges.length,...trials[0]);
-    }
-    if(edges.length!==5)return failed();
-    const horizontal=runs(rowScore,(W-dayX)*(weak?.28:.38));
-    const before=horizontal.filter(v=>v[1]<edges[0][0]-2);
-    if(before.length<1)return failed();
-    const weekdayTop=before[before.length-1];
-    const earlier=before.length>1?before[before.length-2]:null;
-    // 날짜/요일 두 줄의 위쪽 경계가 긴 선으로 안 잡히면 라벨색 전환에서 찾는다.
-    let stripTop=earlier&&weekdayTop[0]-earlier[1]<2*(edges[0][0]-weekdayTop[0])?earlier[1]+1:Math.max(0,weekdayTop[0]-(edges[0][0]-weekdayTop[0]));
-    const bands=MEAL_KEYS.map((key,i)=>({key,top:edges[i][1]+1,bottom:edges[i+1][0]-1}));
-    for(const b of bands)if(b.bottom-b.top<H*.065||b.bottom-b.top>H*.4)return failed();
-    const widths=chain.slice(0,7).map((v,i)=>chain[i+1][0]-v[1]);
-    const mean=widths.reduce((a,b)=>a+b)/7;
-    if(widths.some(v=>Math.abs(v-mean)>mean*.05))return failed();
-    // 서로 다른 요일에서 경계 근거가 반복되는지 확인한다. 선이 일부 끊겨도 4칸 이상은 지지해야 한다.
-    for(const edge of edges.slice(0,4)){
-      const y=Math.round((edge[0]+edge[1])/2);let supported=0;
-      for(let k=0;k<7;k++){let hit=0,total=0;for(let x=chain[k][1]+5;x<chain[k+1][0]-5;x++){total++;let on=false;for(let yy=Math.max(4,y-3);yy<=Math.min(H-5,y+3);yy++){const p=yy*W+x;if(L[p]<labelDark&&L[p]<L[p-3*W]-labelContrast&&L[p]<L[p+3*W]-labelContrast){on=true;break;}}if(on)hit++;}if(hit/Math.max(1,total)>.45)supported++;}
-      if(supported<4)return failed();
-    }
-    const toOriginal=v=>Math.round(v*ratio), bounds=edges.map(v=>v.map(toOriginal));
-    const meals={};
-    const cols=chain.map(v=>v.map(toOriginal));cols[7][0]=Math.min(im.naturalWidth-1,cols[7][0]);cols[7][1]=Math.min(im.naturalWidth-1,cols[7][1]);
-
-    // 정규화 과정의 1~2px 오차는 원본 픽셀에서 다시 정밀화한다.
-    const native=document.createElement('canvas');native.width=im.naturalWidth;native.height=im.naturalHeight;
-    const nc=native.getContext('2d',{willReadFrequently:true});nc.drawImage(im,0,0);const nd=nc.getImageData(0,0,native.width,native.height).data;
-    const lum=(x,y)=>{const p=(y*native.width+x)*4;return .3*nd[p]+.59*nd[p+1]+.11*nd[p+2];};
-    const offset=Math.max(2,Math.round(ratio*3)),radius=Math.max(2,Math.ceil(ratio*2));
-    for(let k=0;k<7;k++){
-      const scores=[];let peak=0;
-      for(let x=Math.max(offset,cols[k][0]-radius);x<=Math.min(native.width-offset-1,cols[k][1]+radius);x++){let score=0;for(let y=bounds[0][1]+3;y<bounds[4][0]-3;y++)if(lum(x,y)<215&&lum(x,y)<lum(x-offset,y)-15&&lum(x,y)<lum(x+offset,y)-15)score++;scores.push([x,score]);peak=Math.max(peak,score);}
-      const good=scores.filter(v=>v[1]>=peak*.85&&v[1]>(bounds[4][0]-bounds[0][1])*.3);if(good.length)cols[k]=[good[0][0],good[good.length-1][0]];
-    }
-    for(let k=0;k<5;k++){
-      const scores=[];let peak=0;
-      for(let y=Math.max(offset,bounds[k][0]-radius);y<=Math.min(native.height-offset-1,bounds[k][1]+radius);y++){let score=0;for(let x=toOriginal(xa);x<=toOriginal(xb);x++)if(lum(x,y)<220&&lum(x,y)<lum(x,y-offset)-12&&lum(x,y)<lum(x,y+offset)-12)score++;scores.push([y,score]);peak=Math.max(peak,score);}
-      const good=scores.filter(v=>v[1]>=peak*.8&&v[1]>(toOriginal(xb)-toOriginal(xa))*.6);if(good.length)bounds[k]=[good[0][0],good[good.length-1][0]];
-    }
-    for(let i=0;i<4;i++)meals[MEAL_KEYS[i]]=[bounds[i][1]+1,bounds[i+1][0]-1];
-    const weekday=[toOriginal(stripTop),toOriginal(weekdayTop[0]-1)];
-    if(anchors){
-      const dayMatches=anchors.weekdays.filter(a=>a.x>cols[a.i][1]&&a.x<cols[a.i+1][0]&&a.y>=weekday[0]&&a.y<=weekday[1]).length;
-      const mealMatches=anchors.labels.filter(a=>a.y>meals[MEAL_KEYS[a.i]][0]&&a.y<meals[MEAL_KEYS[a.i]][1]).length;
-      if(dayMatches<3||mealMatches<2)return failed();
-      const evidence=[];
-      for(const a of anchors.weekdays){if(a.y<weekday[0]||a.y>weekday[1])continue;const position=DOW.findIndex((_,i)=>a.x>cols[i][1]&&a.x<cols[i+1][0]);if(position>=0)evidence.push({expected:position,actual:a.i,confidence:a.confidence});}
-      for(const a of anchors.labels){if(a.x<toOriginal(labelLeft[1]+3)||a.x>toOriginal(labelRight[0]-3))continue;const position=MEAL_KEYS.findIndex(key=>a.y>meals[key][0]&&a.y<meals[key][1]);if(position>=0)evidence.push({expected:position,actual:a.i,confidence:a.confidence});}
-      if(labelVerdict(evidence).blocked)return failed();
-    }
-    return {cols,strip:[toOriginal(stripTop),bounds[0][0]-1],meals,weekday,label:[toOriginal(labelLeft[1]+3),toOriginal(labelRight[0]-3)]};
-  }catch(e){return failed();}
+  if(!latest)throw error||Error('탐색 시작 공지를 불러오지 못했어요.');
+  for(let count=0;count<8;count++){
+   const next=await findNextSource(latest.boardIdx);if(!next){if(error)throw error;return;}
+   await submitSource(next);latest=next;
+   try{localStorage.setItem('mealIdx',String(latest.boardIdx));}catch{}
+  }
+  throw Error('공지 탐색 횟수에 도달했어요. 새로고침 후 다시 확인해 주세요.');
+ }catch(e){sourceError='원본 확인·접수 미완료: '+(e.message||'네트워크 응답을 확인해 주세요.')+' 게시된 식단 표시는 유지해요.';status();}
+ finally{if(latest)try{localStorage.setItem('mealIdx',String(latest.boardIdx));}catch{}}
 }
 
-// v2.9.0: 평소에는 기존 검출만 사용한다. 실패한 이미지에만 보완을 한 번 수행한다.
-function labelCanvas(im,r){
-  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(r.w));c.height=Math.max(1,Math.round(r.h));
-  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(im,r.x,r.y,r.w,r.h,0,0,c.width,c.height);
-  const d=cx.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
-  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){const p=(y*c.width+x)*4;if(.3*d[p]+.59*d[p+1]+.11*d[p+2]<160){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}}
-  if(x1<x0||y1<y0)return null;
-  const scale=Math.min(6,Math.max(2,64/(y1-y0+1))),out=document.createElement('canvas');
-  out.width=Math.round((x1-x0+1)*scale)+32;out.height=Math.round((y1-y0+1)*scale)+32;
-  const z=out.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,out.width,out.height);z.drawImage(c,x0,y0,x1-x0+1,y1-y0+1,16,16,out.width-32,out.height-32);return out;
-}
-const cleanLabel=s=>(s||'').replace(/[^가-힣]/g,'');
-function labelIndex(text,kind){
-  const value=cleanLabel(text),names=kind==='day'?DOW:['조식','중식','석식','야식'];
-  return names.findIndex(n=>value===n||(kind==='day'&&value===n+'요일'));
-}
-function labelVerdict(results){
-  // 낮은 점수·빈 결과·단일 오독은 차단하지 않는다. 서로 다른 두 위치의 확실한 충돌만 차단한다.
-  const conflicts=results.filter(r=>r.actual>=0&&r.actual!==r.expected&&r.confidence>=65).length;
-  return {blocked:conflicts>=2,unknown:results.filter(r=>r.actual!==r.expected).length};
-}
-function loadOCREngine(ms){
-  if(window.Tesseract)return Promise.resolve();
-  return new Promise((resolve,reject)=>{
-    const script=document.createElement('script');let done=false;
-    const finish=error=>{if(done)return;done=true;clearTimeout(timer);script.onload=script.onerror=null;if(error){script.remove();reject(error);}else resolve();};
-    const timer=setTimeout(()=>finish(new Error('글자 확인 엔진 준비 시간이 초과됐어요.')),ms);
-    script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-    script.onload=()=>finish();script.onerror=()=>finish(new Error('글자 확인 엔진을 불러오지 못했어요.'));document.head.append(script);
-  });
-}
-async function readGridLabels(im,g,worker,wait){
-  await wait(worker.setParameters({tessedit_pageseg_mode:'7'}));
-  const inset=Math.max(2,Math.round(im.naturalWidth/1200*3)),rects=[];
-  for(let i=0;i<4;i++){const [a,b]=g.meals[MEAL_KEYS[i]];rects.push({kind:'meal',expected:i,x:g.label[0],y:a+inset,w:g.label[1]-g.label[0],h:b-a-2*inset});}
-  for(let i=0;i<7;i++)rects.push({kind:'day',expected:i,x:g.cols[i][1]+inset,y:g.weekday[0]+inset,w:g.cols[i+1][0]-g.cols[i][1]-2*inset,h:g.weekday[1]-g.weekday[0]+1-2*inset});
-  const results=[];
-  for(const r of rects){const c=r.w>0&&r.h>0?labelCanvas(im,r):null;if(!c){results.push({...r,actual:-1,confidence:0});continue;}
-    const {data}=await wait(worker.recognize(c));results.push({kind:r.kind,expected:r.expected,actual:labelIndex(data.text,r.kind),confidence:data.confidence||0});
-    if(labelVerdict(results).blocked)return labelVerdict(results);
-  }
-  return labelVerdict(results);
-}
-async function findLabelAnchors(im,worker,wait){
-  await wait(worker.setParameters({tessedit_pageseg_mode:'11'}));
-  const found={weekdays:[],labels:[]},regions=[{kind:'day',x:0,y:0,w:im.naturalWidth,h:Math.round(im.naturalHeight*.28)},{kind:'meal',x:0,y:Math.round(im.naturalHeight*.12),w:Math.round(im.naturalWidth*.09),h:Math.round(im.naturalHeight*.78)}];
-  for(const r of regions){const c=document.createElement('canvas');const scale=Math.min(2,2400/r.w);c.width=Math.round(r.w*scale);c.height=Math.round(r.h*scale);c.getContext('2d').drawImage(im,r.x,r.y,r.w,r.h,0,0,c.width,c.height);
-    const {data}=await wait(worker.recognize(c)),words=data.words||[];
-    for(const word of words){const i=labelIndex(word.text,r.kind);if(i<0||!word.bbox||(r.kind==='day'&&cleanLabel(word.text)!==DOW[i]+'요일'))continue;const b=word.bbox;const anchor={i,x:r.x+(b.x0+b.x1)/(2*scale),y:r.y+(b.y0+b.y1)/(2*scale),confidence:word.confidence||0};const list=r.kind==='day'?found.weekdays:found.labels,old=list.findIndex(a=>a.i===i);if(old<0)list.push(anchor);else if(anchor.confidence>list[old].confidence)list[old]=anchor;}
-  }
-  return found;
-}
-async function recoverGrid(im){
-  let candidate=null,worker=null,ended=false,timedOut=false;
-  const deadline=Date.now()+25000;
-  const wait=promise=>new Promise((resolve,reject)=>{const pending=Promise.resolve(promise),ms=deadline-Date.now();if(ms<=0){pending.catch(()=>{});timedOut=true;reject(new Error('글자 확인 시간이 초과됐어요.'));return;}
-    const timer=setTimeout(()=>{timedOut=true;reject(new Error('글자 확인 시간이 초과됐어요.'));},ms);
-    pending.then(value=>{clearTimeout(timer);resolve(value);},error=>{clearTimeout(timer);reject(error);});
-  });
-  try{
-    const probe=document.createElement('canvas');probe.width=probe.height=1;const cx=probe.getContext('2d');cx.drawImage(im,0,0,1,1);cx.getImageData(0,0,1,1);
-    const width=Math.max(1,Math.floor(Math.min(im.naturalWidth,2400,2100*im.naturalWidth/im.naturalHeight)));
-    candidate=detectGrid(im,width);
-    await wait(loadOCREngine(Math.max(1,Math.min(8000,deadline-Date.now()))));
-    const creating=Tesseract.createWorker('kor',1);creating.then(w=>{if(ended)w.terminate().catch(()=>{});},()=>{});
-    worker=await wait(creating);
-    if(!candidate){
-      const anchors=await findLabelAnchors(im,worker,wait);
-      if(anchors.weekdays.length<3||anchors.labels.length<2)return {grid:null,note:'요일·식사명 위치가 부족해 칸을 구분하지 못했어요. 전체 원본을 표시해요. 새로고침해 주세요.'};
-      candidate=detectGrid(im,width,anchors);
-      if(!candidate)return {grid:null,note:'글자 위치를 확인했지만 식단 경계가 불명확해요. 전체 원본을 표시해요. 새로고침해 주세요.'};
-    }
-    const verdict=await readGridLabels(im,candidate,worker,wait);
-    if(verdict.blocked)return {grid:null,note:'읽힌 요일·식사명과 칸 위치가 여러 곳에서 달라요. 전체 원본을 표시해요. 새로고침해 주세요.'};
-    return {grid:candidate,note:verdict.unknown?'경계선을 보완했어요. 일부 글자는 칸 배치로 확인해 표시해요.':'경계선이 흐려 원본 해상도와 글자 확인으로 보완했어요.'};
-  }catch(error){
-    if(error.name==='SecurityError')return {grid:null,note:'브라우저가 이미지 분석을 허용하지 않아요. 전체 원본을 표시해요. 새로고침해 주세요.'};
-    const reason=timedOut?'글자 확인 시간이 초과됐어요.':error.message||'글자 확인을 마치지 못했어요.';
-    return candidate?{grid:candidate,note:'원본 해상도로 경계선을 보완했어요. '+reason+' 글자 확인은 생략했어요.'}:{grid:null,note:reason+' 전체 원본을 표시해요. 새로고침해 주세요.'};
-  }finally{ended=true;if(worker)worker.terminate().catch(()=>{});}
-}
-
-function crop(canvas,day,range){
-  const x=grid.cols[day][1]+1,w=grid.cols[day+1][0]-x-1,h=range[1]-range[0]+1;
-  canvas.width=w*3;canvas.height=h*3;
-  const ctx=canvas.getContext('2d');ctx.imageSmoothingQuality='high';
-  ctx.drawImage(image,x,range[0],w,h,0,0,canvas.width,canvas.height);
-}
+function appendLines(parent,content,className,highlightFirst=false){const block=document.createElement('div');block.className=className;for(const [index,line] of content.entries()){const p=document.createElement('p');p.textContent=line;if(highlightFirst&&index===0)p.className='menu-main';block.append(p);}parent.append(block);}
+function updateDays(){const start=notice?.start||mondayOf(currentSelection().date);document.querySelectorAll('.day').forEach((button,i)=>{const date=addDays(start,i),parts=date.split('-');button.querySelector('small').textContent=Number(parts[1])+'/'+Number(parts[2]);button.setAttribute('aria-label',Number(parts[1])+'월 '+Number(parts[2])+'일 '+DOW[i]+'요일');});}
 function render(){
-  if(!notice)return;
-  const date=notice.weekStart&&new Date(notice.weekStart);
-  if(date)date.setDate(date.getDate()+selectedDay);
-  const meal=MEALS.find(m=>m.key===selectedMeal);
-  $('badge').textContent=(date?(date.getMonth()+1)+'월 '+date.getDate()+'일 ':'')+DOW[selectedDay]+'요일 '+meal.label;
-  document.querySelectorAll('.day').forEach((b,i)=>b.setAttribute('aria-pressed',i===selectedDay));
-  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.meal===selectedMeal));
-  const key=notice.fileNm+'|'+selectedDay+'|'+selectedMeal;
-  if(painted===key)return;
-  painted=key;
-  $('dateStrip').hidden=$('cell').hidden=!grid;$('whole').hidden=!!grid;
-  if(grid){crop($('dateStrip'),selectedDay,grid.strip);crop($('cell'),selectedDay,grid.meals[selectedMeal]);}
-  else if($('whole').getAttribute('src')!==notice.fileNm)$('whole').src=notice.fileNm;
+ const current=currentSelection(),start=notice?.start||mondayOf(current.date);
+ if(!notice){selectedMeal=current.meal;selectedDay=Math.round((dayTime(current.date)-dayTime(start))/DAY_MS);}
+ const date=addDays(start,selectedDay),meal=MEALS.find(m=>m.key===selectedMeal);
+ document.querySelectorAll('.day').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===selectedDay)));
+ document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.meal===selectedMeal)));
+ const key=(notice?'week':'empty')+'|'+start+'|'+selectedDay+'|'+selectedMeal;if(painted===key)return;painted=key;
+ const root=$('menuText');root.replaceChildren();const heading=document.createElement('p');heading.className='meal-date';heading.textContent=Number(date.slice(5,7))+'월 '+Number(date.slice(8))+'일 '+DOW[selectedDay]+'요일 · '+meal.label;root.append(heading);
+ if(!notice){appendLines(root,['식단 준비 중이에요.'],'menu-empty');$('view').hidden=false;return;}
+ const item=notice.days[selectedDay].meals.find(m=>m.meal===selectedMeal);
+ if(item.menus.some(group=>group.length)){item.menus.forEach(group=>{if(group.length)appendLines(root,group,'menu-group',true);});}else appendLines(root,['등록된 메뉴가 없어요.'],'menu-empty');
+ for(const [title,content] of [['PLUS',item.plus],['셀프라면',item.self_ramen]])if(content.length){const h=document.createElement('p');h.className='extra-label';h.textContent=title;root.append(h);appendLines(root,content,'menu-extra');}
+ $('view').hidden=false;
 }
-function pickCurrent(rows,date){
-  const started=rows.filter(n=>{const d=weekStartOf(n);return d&&d<=date;});
-  return rows.find(n=>inWeek(date,weekStartOf(n)))||started.at(-1)||rows.at(-1);
-}
-function sync(){
-  if(!notice)return;
-  if(manual&&Date.now()-lastTouch>=IDLE_MS)manual=false;
-  if(!manual){
-    const now=new Date(),meal=mealAt(now),date=new Date(now);date.setDate(date.getDate()+meal.dayShift);
-    const current=pickCurrent(available,date);
-    if(current&&current.boardIdx!==notice.boardIdx&&!busy){run(()=>show(current),true);return;}
-    selectedMeal=meal.key;selectedDay=inWeek(date,notice.weekStart)?dayIndex(date):0;
-  }
-  render();
-}
-async function show(n){
-  const nextImage=await loadImage(n.fileNm), initialGrid=detectGrid(nextImage);
-  const result=initialGrid?{grid:initialGrid,note:''}:await recoverGrid(nextImage);
-  image=nextImage;grid=result.grid;displayNote=result.note;notice={...n,weekStart:weekStartOf(n)};painted='';
-  try{localStorage.setItem('mealIdx',String(n.boardIdx));}catch{}
-  document.querySelectorAll('.day').forEach((b,i)=>{
-    const d=notice.weekStart&&new Date(notice.weekStart);if(d)d.setDate(d.getDate()+i);
-    b.querySelector('small').textContent=d?(d.getMonth()+1)+'/'+d.getDate():'';
-    b.setAttribute('aria-label',(d?(d.getMonth()+1)+'월 '+d.getDate()+'일 ':'')+DOW[i]+'요일');
-  });
-  $('view').hidden=false;status(displayNote);sync();
-}
-async function run(task,silent=false){
-  if(busy)return;
-  busy=true;$('prev').disabled=$('next').disabled=true;
-  if(!silent)status('식단을 불러오는 중…');
-  try{await task();}catch(error){status((error.message||'식단을 불러오지 못했어요.')+' 새로고침해 주세요.');}
-  finally{
-    busy=false;$('prev').disabled=$('next').disabled=false;
-    if(homePending){homePending=false;manual=false;sync();}
-    if(!busy&&refreshPending){refreshPending=false;refresh(true);}
-  }
-}
+function clearNotice(){notice=null;manual=false;painted='';updateDays();render();}
+function applyWeek(week){const current=currentSelection();if(!manual&&!inWeek(current.date,week)){clearNotice();return false;}notice=week;painted='';if(!manual){selectedMeal=current.meal;selectedDay=Math.round((dayTime(current.date)-dayTime(week.start))/DAY_MS);}updateDays();render();return true;}
+async function show(row){const revision=selectionRevision,week=await readWeek(row);if(revision!==selectionRevision)return;if(!applyWeek(week)){homePending=true;return;}lastError='';status();}
+function sync(){if(busy)return;if(manual&&Date.now()-lastTouch>=IDLE_MS)manual=false;if(manual&&notice){render();return;}const current=currentSelection(),row=pickCurrent(available,current.date);if(!row){clearNotice();status();return;}if(row.start!==notice?.start){run(()=>show(row),true);return;}selectedMeal=current.meal;selectedDay=Math.round((dayTime(current.date)-dayTime(notice.start))/DAY_MS);render();}
+async function run(task,silent=false){if(busy)return;busy=true;$('prev').disabled=$('next').disabled=true;if(!silent)status('식단을 불러오는 중…');try{await task();}catch(error){lastError='식단 갱신 실패: '+(error.message||'서버 응답을 확인해 주세요.')+(notice?' 표시 중인 식단을 유지해요.':'');status();if(!notice){painted='';updateDays();render();}}finally{busy=false;$('prev').disabled=$('next').disabled=!available.length;if(homePending){homePending=false;manual=false;sync();}if(!busy&&refreshPending){refreshPending=false;refresh(true);}}}
 function refresh(silent=false){
-  if(busy){refreshPending=true;return;}
-  return run(async()=>{
-    let id=SEED_IDX;try{id=+localStorage.getItem('mealIdx')||SEED_IDX;}catch{}
-    const seed=await fetchNotice(id)||await fetchNotice(SEED_IDX);
-    if(!seed)throw new Error('식단 공지를 불러오지 못했어요.');
-    const form=signature(seed.title),chain=[seed];
-    for(let n=seed;(n=await findSame(n.boardIdx,1,form));)chain.push(n);
-    const today=new Date();today.setDate(today.getDate()+mealAt(today).dayShift);today.setHours(0,0,0,0);
-    for(let n=seed,k=0;k<6&&(weekStartOf(n)||0)>today;k++){
-      n=await findSame(n.boardIdx,-1,form);if(!n)break;chain.unshift(n);
-    }
-    available=chain;const pick=pickCurrent(available,today);
-    if(silent&&manual&&Date.now()-lastTouch<IDLE_MS){status(displayNote);sync();return;}
-    manual=false;
-    if(!notice||notice.boardIdx!==pick.boardIdx||notice.fileNm!==pick.fileNm)await show(pick);
-    else {status(displayNote);sync();}
-  },silent);
+ if(busy){refreshPending=true;return;}
+ return run(async()=>{
+  const rows=await loadIndex();available=rows;
+  for(const start of weekCache.keys())if(!rows.some(row=>row.start===start))weekCache.delete(start);
+  if(notice&&!rows.some(row=>row.start===notice.start)){selectionRevision++;clearNotice();}
+  if(!silent)manual=false;
+  if(manual&&Date.now()-lastTouch>=IDLE_MS)manual=false;
+  const row=manual&&notice?rows.find(row=>row.start===notice.start):pickCurrent(rows,currentSelection().date);
+  if(!row){clearNotice();lastError='';status();return;}
+  const revision=selectionRevision,next=await readWeek(row);
+  if(revision!==selectionRevision&&notice?.start!==row.start)return;
+  if(!applyWeek(next)){homePending=true;return;}lastError='';status();
+ },silent);
 }
-function go(direction){
-  if(!notice)return;
-  return run(async()=>{
-    const n=await findSame(notice.boardIdx,direction,signature(notice.title));
-    if(!n){status(direction<0?'더 이전 식단이 없어요.':'더 최신 식단이 없어요.');return;}
-    manual=true;lastTouch=Date.now();await show(n);
-  });
-}
-DOW.forEach((name,i)=>{
-  const b=document.createElement('button');b.className='day';b.dataset.day=i;
-  b.innerHTML=name+'<small></small>';b.onclick=()=>{manual=true;lastTouch=Date.now();selectedDay=i;render();};
-  $('days').insertBefore(b,$('next'));
-});
-MEALS.forEach(meal=>{
-  const b=document.createElement('button');b.className='tab';b.dataset.meal=meal.key;b.setAttribute('role','tab');
-  b.innerHTML=meal.label+'<small>'+meal.time+'</small>';
-  b.onclick=()=>{manual=true;lastTouch=Date.now();selectedMeal=meal.key;render();};$('tabs').append(b);
-});
-$('prev').onclick=()=>go(-1);$('next').onclick=()=>go(1);
-$('home').onclick=()=>{manual=false;if(busy)homePending=true;else sync();};
-document.addEventListener('pointerdown',()=>{if(manual)lastTouch=Date.now();});
-setInterval(sync,60000);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh(true);});
-refresh();
+function go(direction){if(busy)return;return run(async()=>{const current=currentSelection();let row;if(notice){const index=available.findIndex(r=>r.start===notice.start);row=available[index+direction];}else{const candidates=available.filter(r=>direction<0?r.end<current.date:r.start>current.date);row=direction<0?candidates.at(-1):candidates[0];}if(!row){status(direction<0?'더 이전 식단이 없어요.':'더 최신 식단이 없어요.');return;}selectionRevision++;manual=true;lastTouch=Date.now();await show(row);});}
+DOW.forEach((name,i)=>{const b=document.createElement('button');b.className='day';b.dataset.day=String(i);const label=document.createTextNode(name),small=document.createElement('small');b.append(label,small);b.onclick=()=>{if(!notice)return;selectionRevision++;homePending=false;manual=true;lastTouch=Date.now();selectedDay=i;render();status();};$('days').insertBefore(b,$('next'));});
+MEALS.forEach(meal=>{const b=document.createElement('button');b.className='tab';b.dataset.meal=meal.key;b.setAttribute('role','tab');const label=document.createTextNode(meal.label),small=document.createElement('small');small.textContent=meal.time;b.append(label,small);b.onclick=()=>{if(!notice)return;selectionRevision++;homePending=false;manual=true;lastTouch=Date.now();selectedMeal=meal.key;render();status();};$('tabs').append(b);});
+$('prev').onclick=()=>go(-1);$('next').onclick=()=>go(1);$('home').onclick=()=>{selectionRevision++;manual=false;if(busy)homePending=true;else{sync();status();}};
+document.addEventListener('pointerdown',()=>{if(manual)lastTouch=Date.now();});setInterval(sync,60000);setInterval(()=>{if(document.visibilityState==='visible')refresh(true);},CONFIG.refreshMs);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh(true);});refresh().then(()=>discoverSources());
 })();
 </script>
 </body>
